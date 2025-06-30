@@ -1,0 +1,96 @@
+{
+  "name": "vscode-twitch-chatroom",
+  "displayName": "VSCode Twitch Chatroom",
+  "description": "Integrate Twitch chatroom functionality directly into VSCode for streamers",
+  "version": "0.1.0",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "twitch",
+    "streaming",
+    "chat",
+    "chatroom",
+    "live",
+    "irc"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "twitchChatroom.helloWorld",
+        "title": "Hello World",
+        "category": "Twitch Chatroom"
+      },
+      {
+        "command": "twitchChatroom.connect",
+        "title": "Connect to Twitch Chat",
+        "category": "Twitch Chatroom"
+      },
+      {
+        "command": "twitchChatroom.disconnect",
+        "title": "Disconnect from Twitch Chat",
+        "category": "Twitch Chatroom"
+      }
+    ],
+    "configuration": {
+      "title": "Twitch Chatroom",
+      "properties": {
+        "twitchChatroom.channel": {
+          "type": "string",
+          "default": "",
+          "description": "Twitch channel name to connect to"
+        },
+        "twitchChatroom.username": {
+          "type": "string",
+          "default": "",
+          "description": "Your Twitch username"
+        },
+        "twitchChatroom.autoConnect": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically connect to chat when extension starts"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "18.x",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3",
+    "@vscode/test-cli": "^0.0.4",
+    "@vscode/test-electron": "^2.3.8",
+    "@vscode/vsce": "^2.22.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/vscode-twitch-chatroom.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/vscode-twitch-chatroom/issues"
+  },
+  "homepage": "https://github.com/your-username/vscode-twitch-chatroom#readme",
+  "license": "MIT",
+  "author": {
+    "name": "Your Name",
+    "email": "your.email@example.com"
+  },
+  "publisher": "your-publisher-name"
+}
