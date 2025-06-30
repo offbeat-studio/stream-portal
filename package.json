@@ -35,6 +35,16 @@
         "command": "twitchChatroom.disconnect",
         "title": "Disconnect from Twitch Chat",
         "category": "Twitch Chatroom"
+      },
+      {
+        "command": "twitchChatroom.sendMessage",
+        "title": "Send Message to Chat",
+        "category": "Twitch Chatroom"
+      },
+      {
+        "command": "twitchChatroom.logout",
+        "title": "Logout from Twitch",
+        "category": "Twitch Chatroom"
       }
     ],
     "configuration": {
@@ -49,6 +59,21 @@
           "type": "string",
           "default": "",
           "description": "Your Twitch username"
+        },
+        "twitchChatroom.clientId": {
+          "type": "string",
+          "default": "",
+          "description": "Twitch application Client ID (required for OAuth)"
+        },
+        "twitchChatroom.clientSecret": {
+          "type": "string",
+          "default": "",
+          "description": "Twitch application Client Secret (required for OAuth)"
+        },
+        "twitchChatroom.redirectUri": {
+          "type": "string",
+          "default": "http://localhost:3000/auth/callback",
+          "description": "OAuth redirect URI"
         },
         "twitchChatroom.autoConnect": {
           "type": "boolean",
@@ -68,16 +93,17 @@
     "package": "vsce package"
   },
   "devDependencies": {
-    "@types/vscode": "^1.85.0",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
+    "@types/vscode": "^1.85.0",
+    "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
-    "eslint": "^8.56.0",
-    "typescript": "^5.3.3",
     "@vscode/test-cli": "^0.0.4",
     "@vscode/test-electron": "^2.3.8",
-    "@vscode/vsce": "^2.22.0"
+    "@vscode/vsce": "^2.22.0",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3"
   },
   "repository": {
     "type": "git",
@@ -92,5 +118,9 @@
     "name": "Your Name",
     "email": "your.email@example.com"
   },
-  "publisher": "your-publisher-name"
+  "publisher": "your-publisher-name",
+  "dependencies": {
+    "node-fetch": "^3.3.2",
+    "ws": "^8.18.3"
+  }
 }
