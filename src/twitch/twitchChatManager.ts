@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { AuthManager } from './auth/authManager';
 import { IRCConnectionManager } from './irc/connectionManager';
 import { IRCProtocolHandler } from './irc/ircProtocol';
-import { ConnectionState, IRCMessage, ChatMessage } from './types/twitch';
+import { ConnectionState, IRCMessage, ChatMessage, UserType } from './types/twitch';
 
 export class TwitchChatManager {
     private authManager: AuthManager;
@@ -58,6 +58,33 @@ export class TwitchChatManager {
             if (this.isConnected() && this.currentChannel === channel) {
                 vscode.window.showInformationMessage(`Already connected to ${channel}`);
                 return true;
+            }
+
+            // If connected to a different channel, switch without full disconnection
+            if (this.isConnected() && this.currentChannel && this.currentChannel !== channel) {
+                console.log(`Switching from ${this.currentChannel} to ${channel}...`);
+                try {
+                    await this.connectionManager.switchToChannel(channel);
+                    this.currentChannel = channel;
+                    
+                    // Trigger state update for UI
+                    this.onConnectionStateHandlers.forEach(handler => {
+                        try {
+                            handler(this.connectionManager.getConnectionState());
+                        } catch (error) {
+                            console.error('Error in connection state handler:', error);
+                        }
+                    });
+                    
+                    vscode.window.showInformationMessage(`Switched to Twitch channel: ${channel}`);
+                    this.updateStatusBar();
+                    return true;
+                } catch (error) {
+                    console.error('Failed to switch channels, falling back to full reconnection:', error);
+                    // Fall back to full disconnect/reconnect if switch fails
+                    await this.disconnect();
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
             }
             
             // Check authentication first and ensure we have a valid token
@@ -159,7 +186,32 @@ export class TwitchChatManager {
                 return false;
             }
 
+            // Send message to IRC
             this.connectionManager.sendMessage(this.currentChannel, message);
+            
+            // Create a local message object for our own message since Twitch doesn't echo it back
+            const config = vscode.workspace.getConfiguration('twitchChatroom');
+            const username = config.get<string>('username', '');
+            
+            if (username) {
+                const selfMessage = {
+                    id: `self_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+                    channel: this.currentChannel,
+                    username: username.toLowerCase(),
+                    displayName: username,
+                    message: message,
+                    timestamp: new Date(),
+                    badges: [],
+                    emotes: [],
+                    color: undefined,
+                    userType: UserType.VIEWER,
+                    isSelf: true
+                };
+                
+                // Emit the message to handlers (UI)
+                this.emitChatMessage(selfMessage);
+            }
+            
             return true;
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';

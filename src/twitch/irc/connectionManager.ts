@@ -124,6 +124,21 @@ export class IRCConnectionManager {
         return Array.from(this.joinedChannels);
     }
 
+    async switchToChannel(newChannel: string): Promise<void> {
+        if (this.connectionState !== ConnectionState.CONNECTED) {
+            throw new Error('Not connected to IRC');
+        }
+
+        // Leave all current channels
+        const currentChannels = Array.from(this.joinedChannels);
+        for (const channel of currentChannels) {
+            await this.leaveChannel(channel);
+        }
+
+        // Join new channel
+        await this.joinChannel(newChannel);
+    }
+
     isConnected(): boolean {
         return this.connectionState === ConnectionState.CONNECTED;
     }
