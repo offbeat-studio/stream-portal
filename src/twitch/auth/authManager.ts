@@ -10,7 +10,7 @@ export class AuthManager {
 
     constructor(context: vscode.ExtensionContext) {
         this.tokenManager = new TokenManager(context);
-        
+
         // Get configuration from VSCode settings
         this.config = this.getConfigFromSettings();
         this.oauthFlow = new OAuthFlow(this.config);
@@ -20,7 +20,7 @@ export class AuthManager {
         try {
             // First try to use existing token
             await this.tokenManager.getStoredTokens();
-            
+
             if (this.tokenManager.hasValidToken()) {
                 const token = await this.tokenManager.getStoredTokens();
                 return { success: true, token: token! };
@@ -41,13 +41,20 @@ export class AuthManager {
             }
 
             // Start new OAuth flow
-            return await this.oauthFlow.startFlow();
+            const authResult = await this.oauthFlow.startFlow();
             
+            // If OAuth successful, store the tokens
+            if (authResult.success && authResult.token) {
+                await this.tokenManager.storeTokens(authResult.token);
+            }
+            
+            return authResult;
+
         } catch (error) {
             console.error('Authentication error:', error);
-            return { 
-                success: false, 
-                error: error instanceof Error ? error.message : 'Authentication failed' 
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Authentication failed'
             };
         }
     }
@@ -85,14 +92,22 @@ export class AuthManager {
         return this.tokenManager.getTokenInfo();
     }
 
+    async validateCurrentToken(): Promise<boolean> {
+        const accessToken = this.getAccessToken();
+        if (!accessToken) {
+            return false;
+        }
+        return await this.oauthFlow.validateToken(accessToken);
+    }
+
     private getConfigFromSettings(): TwitchConfig {
         const configuration = vscode.workspace.getConfiguration('twitchChatroom');
-        
+
         // These should be configured by the user
         const clientId = configuration.get<string>('clientId', '');
         const clientSecret = configuration.get<string>('clientSecret', '');
-        const redirectUri = configuration.get<string>('redirectUri', 'http://localhost:3000/auth/callback');
-        
+        const redirectUri = configuration.get<string>('redirectUri', 'http://localhost:7777/auth/callback');
+
         return {
             clientId,
             clientSecret,
@@ -108,7 +123,7 @@ export class AuthManager {
 
     validateConfig(): { isValid: boolean; missingFields: string[] } {
         const missingFields: string[] = [];
-        
+
         if (!this.config.clientId) {
             missingFields.push('clientId');
         }

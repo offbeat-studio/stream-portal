@@ -54,15 +54,29 @@ export class TwitchChatManager {
 
     async connectToChannel(channel: string): Promise<boolean> {
         try {
-            // Check authentication first
-            if (!this.authManager.isAuthenticated()) {
-                const authSuccess = await this.authenticate();
-                if (!authSuccess) {
+            // Always check if we're already connected to this channel
+            if (this.isConnected() && this.currentChannel === channel) {
+                vscode.window.showInformationMessage(`Already connected to ${channel}`);
+                return true;
+            }
+            
+            // Check authentication first and ensure we have a valid token
+            let finalAccessToken = this.authManager.getAccessToken();
+            
+            if (!this.authManager.isAuthenticated() || !finalAccessToken) {
+                console.log('Need to authenticate...');
+                const authResult = await this.authManager.authenticate();
+                if (!authResult.success) {
+                    vscode.window.showErrorMessage(`Authentication failed: ${authResult.error}`);
+                    return false;
+                }
+                finalAccessToken = this.authManager.getAccessToken();
+                
+                if (!finalAccessToken) {
+                    vscode.window.showErrorMessage('Failed to get access token after authentication');
                     return false;
                 }
             }
-
-            const accessToken = this.authManager.getAccessToken();
             const config = vscode.workspace.getConfiguration('twitchChatroom');
             const username = config.get<string>('username', '');
 
@@ -71,17 +85,49 @@ export class TwitchChatManager {
                 return false;
             }
 
-            if (!accessToken) {
-                vscode.window.showErrorMessage('No valid access token available');
-                return false;
-            }
-
-            // Connect to IRC
-            await this.connectionManager.connect(accessToken, username);
             
-            // Join the specified channel
+            // Validate token before attempting to connect
+            console.log('Validating access token...');
+            console.log('Token exists:', !!finalAccessToken);
+            console.log('Token preview:', finalAccessToken ? `${finalAccessToken.substring(0, 8)}...` : 'null');
+            
+            const isValid = await this.authManager.validateCurrentToken();
+            console.log('Token validation result:', isValid);
+            
+            if (!isValid) {
+                vscode.window.showWarningMessage('Token validation failed, attempting to refresh...');
+                try {
+                    await this.authManager.refreshToken();
+                    finalAccessToken = this.authManager.getAccessToken();
+                    if (!finalAccessToken) {
+                        vscode.window.showErrorMessage('Failed to refresh token');
+                        return false;
+                    }
+                    console.log('Token refreshed successfully');
+                } catch (error) {
+                    console.error('Token refresh error:', error);
+                    vscode.window.showErrorMessage('Token refresh failed, please re-authenticate');
+                    return false;
+                }
+            }
+            
+            // Connect to IRC and wait for authentication
+            vscode.window.showInformationMessage('Connecting to Twitch IRC...');
+            await this.connectionManager.connect(finalAccessToken!, username);
+            
+            // Join the specified channel after successful connection
+            vscode.window.showInformationMessage(`Joining channel: ${channel}`);
             await this.connectionManager.joinChannel(channel);
             this.currentChannel = channel;
+            
+            // Trigger state update for UI
+            this.onConnectionStateHandlers.forEach(handler => {
+                try {
+                    handler(this.connectionManager.getConnectionState());
+                } catch (error) {
+                    console.error('Error in connection state handler:', error);
+                }
+            });
             
             vscode.window.showInformationMessage(`Connected to Twitch channel: ${channel}`);
             this.updateStatusBar();

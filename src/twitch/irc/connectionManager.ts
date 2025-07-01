@@ -23,6 +23,11 @@ export class IRCConnectionManager {
     private onStateChangeHandler?: (state: ConnectionState) => void;
     private onErrorHandler?: (error: Error) => void;
 
+    // Connection promise handlers
+    private connectionResolve: (() => void) | undefined;
+    private connectionReject: ((error: Error) => void) | undefined;
+    private connectionTimeout: NodeJS.Timeout | undefined;
+
     constructor() {
         this.protocolHandler = new IRCProtocolHandler();
     }
@@ -44,21 +49,18 @@ export class IRCConnectionManager {
             
             return new Promise((resolve, reject) => {
                 const timeout = setTimeout(() => {
-                    reject(new Error('Connection timeout'));
-                }, 10000);
+                    reject(new Error('IRC connection timeout - failed to authenticate'));
+                }, 30000); // Increase timeout to 30 seconds
 
-                const onConnect = () => {
-                    clearTimeout(timeout);
-                    resolve();
-                };
+                // Store resolve/reject for later use
+                this.connectionResolve = resolve;
+                this.connectionReject = reject;
+                this.connectionTimeout = timeout;
 
-                const onError = (error: Error) => {
-                    clearTimeout(timeout);
-                    reject(error);
-                };
-
-                this.websocket!.once('open', onConnect);
-                this.websocket!.once('error', onError);
+                this.websocket!.once('error', (error) => {
+                    this.cleanupConnectionPromise();
+                    reject(new Error(`WebSocket error: ${error.message}`));
+                });
             });
         } catch (error) {
             this.setConnectionState(ConnectionState.ERROR);
@@ -68,6 +70,7 @@ export class IRCConnectionManager {
 
     disconnect(): void {
         this.clearTimers();
+        this.cleanupConnectionPromise();
         this.reconnectAttempts = 0;
         
         if (this.websocket) {
@@ -162,20 +165,31 @@ export class IRCConnectionManager {
 
     private async handleConnectionOpen(): Promise<void> {
         try {
+            console.log('WebSocket connection opened, starting IRC authentication...');
+            console.log('Token length:', this.accessToken.length);
+            console.log('Username:', this.username);
             this.setConnectionState(ConnectionState.AUTHENTICATING);
             
-            // Send capability request
-            const capReq = this.protocolHandler.formatCapabilityRequest();
-            this.sendRawMessage(capReq);
+            // Send authentication first (PASS and NICK)
+            const passMessage = `PASS oauth:${this.accessToken}\r\n`;
+            const nickMessage = `NICK ${this.username}\r\n`;
             
-            // Send authentication
-            const authMessage = this.protocolHandler.formatAuthMessage(this.accessToken, this.username);
-            this.sendRawMessage(authMessage);
+            console.log('Sending PASS message...');
+            this.sendRawMessage(passMessage);
+            
+            console.log('Sending NICK message for user:', this.username);
+            this.sendRawMessage(nickMessage);
+            
+            // Then send capability request
+            const capReq = this.protocolHandler.formatCapabilityRequest();
+            console.log('Sending capability request:', capReq.trim());
+            this.sendRawMessage(capReq);
             
             this.startHeartbeat();
             this.reconnectAttempts = 0;
             
         } catch (error) {
+            console.error('Error during connection open:', error);
             this.handleConnectionError(error as Error);
         }
     }
@@ -200,6 +214,8 @@ export class IRCConnectionManager {
     }
 
     private processIRCMessage(message: IRCMessage): void {
+        console.log('Processing IRC message:', message.command, message.params);
+        
         switch (message.command) {
             case 'PING':
                 // Respond to ping with pong
@@ -219,10 +235,30 @@ export class IRCConnectionManager {
             case '001': // RPL_WELCOME
                 this.setConnectionState(ConnectionState.CONNECTED);
                 console.log('Successfully connected to Twitch IRC');
+                
+                // Resolve the connection promise
+                if (this.connectionResolve) {
+                    const resolve = this.connectionResolve;
+                    this.cleanupConnectionPromise();
+                    resolve();
+                }
                 break;
 
             case '421': // ERR_UNKNOWNCOMMAND
                 console.warn('Unknown command:', message.params);
+                break;
+
+            case 'NOTICE':
+                // Authentication or general notices
+                console.log('IRC NOTICE:', message.params);
+                if (message.params.some(p => p.includes('Login authentication failed') || p.includes('Login unsuccessful'))) {
+                    console.error('IRC authentication failed - check token and username');
+                    if (this.connectionReject) {
+                        const reject = this.connectionReject;
+                        this.cleanupConnectionPromise();
+                        reject(new Error('IRC authentication failed - invalid token or username'));
+                    }
+                }
                 break;
 
             case 'JOIN':
@@ -238,8 +274,8 @@ export class IRCConnectionManager {
                 break;
 
             default:
-                // Other IRC messages
-                console.debug('IRC message:', message.command, message.params);
+                // Other IRC messages - log all for debugging
+                console.log('Other IRC message:', message.command, message.params, message.prefix);
                 break;
         }
     }
@@ -247,6 +283,32 @@ export class IRCConnectionManager {
     private handleConnectionClose(code: number, reason: string): void {
         console.log(`WebSocket closed: ${code} ${reason}`);
         this.clearTimers();
+        
+        // Handle specific close codes
+        let errorMessage = '';
+        switch (code) {
+            case 1006:
+                errorMessage = 'Connection closed abnormally - possibly authentication failed';
+                break;
+            case 1002:
+                errorMessage = 'Connection closed due to protocol error';
+                break;
+            case 1003:
+                errorMessage = 'Connection closed due to invalid data';
+                break;
+            default:
+                errorMessage = `Connection closed with code ${code}: ${reason}`;
+        }
+        
+        console.log('Connection close reason:', errorMessage);
+        
+        // If we have a pending connection promise and this is an authentication failure
+        if (this.connectionReject && code === 1006) {
+            const reject = this.connectionReject;
+            this.cleanupConnectionPromise();
+            reject(new Error(errorMessage));
+            return;
+        }
         
         if (this.connectionState !== ConnectionState.DISCONNECTED) {
             this.setConnectionState(ConnectionState.DISCONNECTED);
@@ -257,6 +319,13 @@ export class IRCConnectionManager {
     private handleConnectionError(error: Error): void {
         console.error('WebSocket error:', error);
         this.setConnectionState(ConnectionState.ERROR);
+        
+        // Reject connection promise if still pending
+        if (this.connectionReject) {
+            const reject = this.connectionReject;
+            this.cleanupConnectionPromise();
+            reject(error);
+        }
         
         if (this.onErrorHandler) {
             this.onErrorHandler(error);
@@ -327,6 +396,15 @@ export class IRCConnectionManager {
     private clearTimers(): void {
         this.clearHeartbeat();
         this.clearReconnectTimer();
+    }
+
+    private cleanupConnectionPromise(): void {
+        if (this.connectionTimeout) {
+            clearTimeout(this.connectionTimeout);
+        }
+        this.connectionTimeout = undefined;
+        this.connectionResolve = undefined;
+        this.connectionReject = undefined;
     }
 
     private sendRawMessage(message: string): void {
