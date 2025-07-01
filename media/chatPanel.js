@@ -67,7 +67,12 @@
             showTimestamps: document.getElementById('showTimestamps'),
             showBadges: document.getElementById('showBadges'),
             autoScroll: document.getElementById('autoScroll'),
-            soundNotifications: document.getElementById('soundNotifications')
+            soundNotifications: document.getElementById('soundNotifications'),
+            
+            // Info elements
+            btnInfo: document.getElementById('btnInfo'),
+            infoPanel: document.getElementById('infoPanel'),
+            btnCloseInfo: document.getElementById('btnCloseInfo')
         };
     }
 
@@ -85,7 +90,11 @@
         elements.btnSettings?.addEventListener('click', toggleSettings);
         elements.btnCloseSettings?.addEventListener('click', closeSettings);
         
-        // Close settings when clicking outside
+        // Info panel
+        elements.btnInfo?.addEventListener('click', toggleInfo);
+        elements.btnCloseInfo?.addEventListener('click', closeInfo);
+        
+        // Close panels when clicking outside
         document.addEventListener('click', handleOutsideClick);
         
         // Message input
@@ -317,12 +326,33 @@
         elements.settingsPanel?.classList.add('hidden');
     }
 
+    function toggleInfo(event) {
+        if (event) {
+            event.stopPropagation();
+        }
+        // Close settings panel if open
+        elements.settingsPanel?.classList.add('hidden');
+        elements.infoPanel?.classList.toggle('hidden');
+    }
+
+    function closeInfo() {
+        elements.infoPanel?.classList.add('hidden');
+    }
+
     function handleOutsideClick(event) {
+        // Check settings panel
         if (!elements.settingsPanel?.classList.contains('hidden')) {
-            // Check if click is outside settings panel and settings button
             if (!elements.settingsPanel?.contains(event.target) && 
                 !elements.btnSettings?.contains(event.target)) {
                 elements.settingsPanel?.classList.add('hidden');
+            }
+        }
+        
+        // Check info panel
+        if (!elements.infoPanel?.classList.contains('hidden')) {
+            if (!elements.infoPanel?.contains(event.target) && 
+                !elements.btnInfo?.contains(event.target)) {
+                elements.infoPanel?.classList.add('hidden');
             }
         }
     }

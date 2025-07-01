@@ -95,6 +95,7 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
                         <span class="status-text" id="statusText">Disconnected</span>
                     </div>
                     <div class="header-controls">
+                        <button class="btn-info" id="btnInfo" title="Information">ℹ️</button>
                         <button class="btn-settings" id="btnSettings" title="Settings">⚙️</button>
                         <button class="btn-connect" id="btnConnect" title="Connect">🔌</button>
                     </div>
@@ -163,6 +164,44 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
                                 <input type="checkbox" id="soundNotifications">
                                 Sound notifications
                             </label>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- 資訊面板 (可摺疊) -->
+                <aside class="info-panel hidden" id="infoPanel">
+                    <div class="info-content">
+                        <div class="info-header">
+                            <h3>About</h3>
+                            <button class="btn-close-info" id="btnCloseInfo" title="Close information">✕</button>
+                        </div>
+                        <div class="info-section">
+                            <h4>VSCode Twitch Chatroom</h4>
+                            <p>A VSCode extension for viewing and participating in Twitch chat directly within your editor.</p>
+                        </div>
+                        <div class="info-section">
+                            <h4>Developer</h4>
+                            <div class="info-links">
+                                <a href="https://bento.me/musingfox" target="_blank" class="info-link" title="Nick Huang's Profile">
+                                    📋 My Profile
+                                </a>
+                                <a href="https://buymeacoffee.com/musingfox" target="_blank" class="info-link" title="Support Development">
+                                    ☕ Buy me a coffee
+                                </a>
+                                <a href="https://github.com/offbeat-studio/stream-portal/issues" target="_blank" class="info-link" title="Report Issues">
+                                    🐛 Report Issues
+                                </a>
+                            </div>
+                        </div>
+                        <div class="info-section">
+                            <h4>Features</h4>
+                            <ul class="info-features">
+                                <li>Real-time Twitch chat integration</li>
+                                <li>Quick channel switching</li>
+                                <li>Customizable appearance</li>
+                                <li>International keyboard support</li>
+                                <li>Self-message display</li>
+                            </ul>
                         </div>
                     </div>
                 </aside>
