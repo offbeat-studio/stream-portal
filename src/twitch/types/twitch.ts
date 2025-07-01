@@ -33,6 +33,7 @@ export interface ChatMessage {
     emotes: Emote[];
     color?: string | undefined;
     userType: UserType;
+    isSelf?: boolean;
 }
 
 export interface Badge {
