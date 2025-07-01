@@ -116,6 +116,12 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    // Show chat panel command
+    const showChatPanelCommand = vscode.commands.registerCommand('twitchChatroom.showChatPanel', async () => {
+        // Focus on the chat panel view
+        vscode.commands.executeCommand('twitchChatroom.chatPanel.focus');
+    });
+
     // Add commands to the context subscriptions
     context.subscriptions.push(
         helloWorldCommand, 
@@ -123,7 +129,9 @@ export function activate(context: vscode.ExtensionContext) {
         disconnectCommand,
         sendMessageCommand,
         logoutCommand,
-        twitchChatManager
+        showChatPanelCommand,
+        twitchChatManager,
+        chatPanelProvider
     );
 }
 

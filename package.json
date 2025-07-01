@@ -45,6 +45,11 @@
         "command": "twitchChatroom.logout",
         "title": "Logout from Twitch",
         "category": "Twitch Chatroom"
+      },
+      {
+        "command": "twitchChatroom.showChatPanel",
+        "title": "Show Chat Panel",
+        "category": "Twitch Chatroom"
       }
     ],
     "views": {

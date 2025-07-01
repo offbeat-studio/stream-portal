@@ -8,6 +8,7 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
     private _view?: vscode.WebviewView;
     private _extensionUri: vscode.Uri;
     private _chatManager: TwitchChatManager;
+    private _disposables: vscode.Disposable[] = [];
 
     constructor(extensionUri: vscode.Uri, chatManager: TwitchChatManager) {
         this._extensionUri = extensionUri;
@@ -35,14 +36,14 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
         webviewView.webview.html = this.getHtmlForWebview(webviewView.webview);
 
         // Handle messages from the webview
-        webviewView.webview.onDidReceiveMessage(
-            (message) => this.handleWebviewMessage(message),
-            undefined,
-            []
+        this._disposables.push(
+            webviewView.webview.onDidReceiveMessage(
+                (message) => this.handleWebviewMessage(message)
+            )
         );
 
         // Send initial state when webview is ready
-        this.sendInitialState();
+        setTimeout(() => this.sendInitialState(), 100);
     }
 
     private getHtmlForWebview(webview: vscode.Webview): string {
@@ -344,5 +345,7 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
 
     public dispose() {
         // Clean up resources
+        this._disposables.forEach(d => d.dispose());
+        this._disposables = [];
     }
 }
