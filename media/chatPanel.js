@@ -23,7 +23,8 @@
         },
         isAutoScrollEnabled: true,
         messageHistory: [],
-        historyIndex: -1
+        historyIndex: -1,
+        recentChannels: []
     };
 
     // Initialize when DOM is loaded
@@ -38,6 +39,10 @@
             // Header elements
             channelName: document.getElementById('channelName'),
             viewerCount: document.getElementById('viewerCount'),
+            channelInput: document.getElementById('channelInput'),
+            btnChannelGo: document.getElementById('btnChannelGo'),
+            channelSelect: document.getElementById('channelSelect'),
+            recentChannels: document.getElementById('recentChannels'),
             statusIndicator: document.getElementById('statusIndicator'),
             statusText: document.getElementById('statusText'),
             btnSettings: document.getElementById('btnSettings'),
@@ -50,7 +55,6 @@
             // Input elements
             messageInput: document.getElementById('messageInput'),
             btnSend: document.getElementById('btnSend'),
-            btnClear: document.getElementById('btnClear'),
             
             // Welcome elements
             btnWelcomeConnect: document.getElementById('btnWelcomeConnect'),
@@ -72,6 +76,11 @@
         elements.btnConnect?.addEventListener('click', handleConnect);
         elements.btnWelcomeConnect?.addEventListener('click', handleConnect);
         
+        // Channel switcher
+        elements.channelInput?.addEventListener('keydown', handleChannelInputKeydown);
+        elements.btnChannelGo?.addEventListener('click', handleChannelGo);
+        elements.channelSelect?.addEventListener('change', handleChannelSelect);
+        
         // Settings
         elements.btnSettings?.addEventListener('click', toggleSettings);
         elements.btnCloseSettings?.addEventListener('click', closeSettings);
@@ -85,7 +94,6 @@
         elements.btnSend?.addEventListener('click', handleSendMessage);
         
         // Quick actions
-        elements.btnClear?.addEventListener('click', handleClearChat);
         elements.btnScrollBottom?.addEventListener('click', scrollToBottom);
         
         // Settings controls
@@ -133,6 +141,9 @@
 
     function handleInitialState(initialState) {
         state = { ...state, ...initialState };
+        if (initialState.recentChannels) {
+            loadRecentChannels(initialState.recentChannels);
+        }
         updateUI();
         updateSettings();
     }
@@ -188,12 +199,90 @@
         vscode.postMessage({ type: 'connect' });
     }
 
+    function handleChannelInputKeydown(event) {
+        // Check if user is composing text (IME)
+        if (event.isComposing || event.keyCode === 229) {
+            return;
+        }
+        
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            handleChannelGo();
+        }
+    }
+
+    function handleChannelGo() {
+        const channel = elements.channelInput?.value?.trim();
+        if (channel) {
+            connectToChannel(channel);
+        }
+    }
+
+    function handleChannelSelect() {
+        const selectedChannel = elements.channelSelect?.value;
+        if (selectedChannel) {
+            connectToChannel(selectedChannel);
+            elements.channelSelect.value = ''; // Reset selection
+        }
+    }
+
+    function connectToChannel(channel) {
+        // Clean channel name (remove # if present)
+        const cleanChannel = channel.replace(/^#/, '');
+        
+        // If switching to a different channel, clear chat first
+        if (state.channel && state.channel !== cleanChannel) {
+            clearMessages();
+            // Show switching indicator
+            addSystemMessage(`Switching to #${cleanChannel}...`);
+        }
+        
+        // Add to recent channels
+        addToRecentChannels(cleanChannel);
+        
+        // Clear input
+        if (elements.channelInput) {
+            elements.channelInput.value = '';
+        }
+        
+        // Send connect message to extension
+        vscode.postMessage({ 
+            type: 'connectToChannel', 
+            channel: cleanChannel 
+        });
+    }
+
+    function addSystemMessage(text) {
+        if (!elements.messagesList) return;
+        
+        const systemMessage = document.createElement('div');
+        systemMessage.className = 'system-message';
+        systemMessage.textContent = text;
+        
+        // Hide welcome message if it exists
+        const welcomeMessage = elements.messagesList.querySelector('.welcome-message');
+        if (welcomeMessage) {
+            welcomeMessage.style.display = 'none';
+        }
+        
+        elements.messagesList.appendChild(systemMessage);
+        
+        if (state.settings.autoScroll && state.isAutoScrollEnabled) {
+            scrollToBottom();
+        }
+    }
+
     function handleInputChange() {
         updateSendButton();
         autoResizeInput();
     }
 
     function handleInputKeydown(event) {
+        // Check if user is composing text (e.g., using IME for Chinese, Japanese, Korean)
+        if (event.isComposing || event.keyCode === 229) {
+            return; // Don't handle Enter while composing
+        }
+        
         if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
             handleSendMessage();
@@ -216,11 +305,6 @@
         }
     }
 
-    function handleClearChat() {
-        if (confirm('Clear all chat messages?')) {
-            vscode.postMessage({ type: 'clearChat' });
-        }
-    }
 
     function toggleSettings(event) {
         if (event) {
@@ -454,6 +538,9 @@
     function createMessageElement(message) {
         const messageDiv = document.createElement('div');
         messageDiv.className = 'message-item';
+        if (message.isSelf) {
+            messageDiv.classList.add('self-message');
+        }
         messageDiv.setAttribute('data-user-type', message.userType);
         messageDiv.setAttribute('data-message-id', message.id);
         
@@ -668,6 +755,62 @@
             
             updateSendButton();
         }
+    }
+
+    // Recent channels management
+    function addToRecentChannels(channel) {
+        if (!channel) return;
+        
+        // Remove if already exists
+        state.recentChannels = state.recentChannels.filter(c => c !== channel);
+        
+        // Add to beginning
+        state.recentChannels.unshift(channel);
+        
+        // Keep only last 10 channels
+        if (state.recentChannels.length > 10) {
+            state.recentChannels = state.recentChannels.slice(0, 10);
+        }
+        
+        // Update UI
+        updateRecentChannelsSelect();
+        
+        // Save to storage
+        saveRecentChannels();
+    }
+
+    function updateRecentChannelsSelect() {
+        if (!elements.channelSelect) return;
+        
+        // Clear existing options except first
+        while (elements.channelSelect.children.length > 1) {
+            elements.channelSelect.removeChild(elements.channelSelect.lastChild);
+        }
+        
+        // Add recent channels
+        state.recentChannels.forEach(channel => {
+            const option = document.createElement('option');
+            option.value = channel;
+            option.textContent = `#${channel}`;
+            elements.channelSelect.appendChild(option);
+        });
+        
+        // Show/hide recent channels dropdown
+        if (elements.recentChannels) {
+            elements.recentChannels.style.display = state.recentChannels.length > 0 ? 'block' : 'none';
+        }
+    }
+
+    function saveRecentChannels() {
+        vscode.postMessage({
+            type: 'saveRecentChannels',
+            channels: state.recentChannels
+        });
+    }
+
+    function loadRecentChannels(channels) {
+        state.recentChannels = channels || [];
+        updateRecentChannelsSelect();
     }
 
     function playNotificationSound() {
