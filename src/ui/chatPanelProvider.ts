@@ -73,6 +73,23 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
                         <span class="channel-name" id="channelName">Not connected</span>
                         <span class="viewer-count" id="viewerCount" style="display: none;"></span>
                     </div>
+                    <div class="channel-switcher">
+                        <div class="channel-input-container">
+                            <input 
+                                type="text" 
+                                id="channelInput" 
+                                class="channel-input" 
+                                placeholder="Enter channel name..."
+                                title="Enter a Twitch channel name and press Enter to connect"
+                            />
+                            <button class="btn-channel-go" id="btnChannelGo" title="Connect to channel">→</button>
+                        </div>
+                        <div class="recent-channels" id="recentChannels" style="display: none;">
+                            <select class="channel-select" id="channelSelect">
+                                <option value="">Recent channels...</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="connection-status">
                         <span class="status-indicator disconnected" id="statusIndicator"></span>
                         <span class="status-text" id="statusText">Disconnected</span>
@@ -111,9 +128,6 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
                             style="resize: none;"
                         ></textarea>
                         <button class="btn-send" id="btnSend" disabled>Send</button>
-                    </div>
-                    <div class="quick-actions">
-                        <button class="btn-clear" id="btnClear" title="Clear chat">🗑️</button>
                     </div>
                 </footer>
 
@@ -177,12 +191,17 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
                 this.handleSendMessage(message.text);
                 break;
             
-            case 'clearChat':
-                this.handleClearChat();
-                break;
             
             case 'settingsChanged':
                 this.handleSettingsChanged(message.settings);
+                break;
+            
+            case 'connectToChannel':
+                this.handleConnectToChannel(message.channel);
+                break;
+            
+            case 'saveRecentChannels':
+                this.handleSaveRecentChannels(message.channels);
                 break;
             
             default:
@@ -255,11 +274,6 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
         }
     }
 
-    private handleClearChat() {
-        this.postMessage({
-            type: 'clearMessages'
-        });
-    }
 
     private handleSettingsChanged(settings: any) {
         // Save settings to workspace configuration
@@ -282,6 +296,23 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
         }
     }
 
+    private async handleConnectToChannel(channel: string) {
+        try {
+            const success = await this._chatManager.connectToChannel(channel);
+            if (success) {
+                console.log('Successfully connected to channel:', channel);
+            }
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            vscode.window.showErrorMessage(`Failed to connect to ${channel}: ${errorMessage}`);
+        }
+    }
+
+    private handleSaveRecentChannels(channels: string[]) {
+        const config = vscode.workspace.getConfiguration('twitchChatroom');
+        config.update('recentChannels', channels, vscode.ConfigurationTarget.Global);
+    }
+
     private handleChatMessage(message: ChatMessage) {
         this.postMessage({
             type: 'newMessage',
@@ -295,7 +326,8 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
                 badges: message.badges,
                 emotes: message.emotes,
                 color: message.color,
-                userType: message.userType
+                userType: message.userType,
+                isSelf: message.isSelf
             }
         });
     }
@@ -322,6 +354,7 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
                 connectionState,
                 channel: currentChannel,
                 isAuthenticated: this._chatManager.isAuthenticated(),
+                recentChannels: config.get('recentChannels', []),
                 settings: {
                     fontSize: config.get('fontSize', 14),
                     showTimestamps: config.get('showTimestamps', true),
