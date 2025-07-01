@@ -1,11 +1,28 @@
 import * as vscode from 'vscode';
 import { TwitchChatManager } from './twitch/twitchChatManager';
+import { ChatPanelProvider } from './ui/chatPanelProvider';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('VSCode Twitch Chatroom extension is now active!');
 
     // Initialize Twitch Chat Manager
     const twitchChatManager = new TwitchChatManager(context);
+
+    // Initialize Chat Panel Provider
+    const chatPanelProvider = new ChatPanelProvider(context.extensionUri, twitchChatManager);
+    
+    // Register the webview view provider
+    context.subscriptions.push(
+        vscode.window.registerWebviewViewProvider(
+            ChatPanelProvider.viewType,
+            chatPanelProvider,
+            {
+                webviewOptions: {
+                    retainContextWhenHidden: true
+                }
+            }
+        )
+    );
 
     // Hello World command for testing
     const helloWorldCommand = vscode.commands.registerCommand('twitchChatroom.helloWorld', () => {

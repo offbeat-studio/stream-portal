@@ -47,6 +47,16 @@
         "category": "Twitch Chatroom"
       }
     ],
+    "views": {
+      "explorer": [
+        {
+          "type": "webview",
+          "id": "twitchChatroom.chatPanel",
+          "name": "Twitch Chat",
+          "when": "true"
+        }
+      ]
+    },
     "configuration": {
       "title": "Twitch Chatroom",
       "properties": {
