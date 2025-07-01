@@ -49,9 +49,7 @@
             
             // Input elements
             messageInput: document.getElementById('messageInput'),
-            inputCounter: document.getElementById('inputCounter'),
             btnSend: document.getElementById('btnSend'),
-            btnEmote: document.getElementById('btnEmote'),
             btnClear: document.getElementById('btnClear'),
             
             // Welcome elements
@@ -59,6 +57,7 @@
             
             // Settings elements
             settingsPanel: document.getElementById('settingsPanel'),
+            btnCloseSettings: document.getElementById('btnCloseSettings'),
             fontSize: document.getElementById('fontSize'),
             fontSizeValue: document.getElementById('fontSizeValue'),
             showTimestamps: document.getElementById('showTimestamps'),
@@ -75,6 +74,10 @@
         
         // Settings
         elements.btnSettings?.addEventListener('click', toggleSettings);
+        elements.btnCloseSettings?.addEventListener('click', closeSettings);
+        
+        // Close settings when clicking outside
+        document.addEventListener('click', handleOutsideClick);
         
         // Message input
         elements.messageInput?.addEventListener('input', handleInputChange);
@@ -173,7 +176,6 @@
                 addToMessageHistory(messageText);
             }
             elements.messageInput.value = '';
-            updateInputCounter();
             updateSendButton();
         } else {
             // Show error
@@ -187,7 +189,6 @@
     }
 
     function handleInputChange() {
-        updateInputCounter();
         updateSendButton();
         autoResizeInput();
     }
@@ -221,8 +222,25 @@
         }
     }
 
-    function toggleSettings() {
+    function toggleSettings(event) {
+        if (event) {
+            event.stopPropagation();
+        }
         elements.settingsPanel?.classList.toggle('hidden');
+    }
+
+    function closeSettings() {
+        elements.settingsPanel?.classList.add('hidden');
+    }
+
+    function handleOutsideClick(event) {
+        if (!elements.settingsPanel?.classList.contains('hidden')) {
+            // Check if click is outside settings panel and settings button
+            if (!elements.settingsPanel?.contains(event.target) && 
+                !elements.btnSettings?.contains(event.target)) {
+                elements.settingsPanel?.classList.add('hidden');
+            }
+        }
     }
 
     function handleScroll() {
@@ -243,7 +261,15 @@
     function handleFontSizeChange() {
         const fontSize = elements.fontSize?.value || 14;
         elements.fontSizeValue.textContent = fontSize + 'px';
+        
+        // Apply font size immediately to CSS custom property
         document.documentElement.style.setProperty('--chat-font-size', fontSize + 'px');
+        
+        // Also apply directly to message elements for immediate effect
+        const messages = document.querySelectorAll('.message-item');
+        messages.forEach(msg => {
+            msg.style.fontSize = fontSize + 'px';
+        });
         
         handleSettingsChange();
     }
@@ -307,8 +333,16 @@
     function updateChannelInfo() {
         if (!elements.channelName) return;
         
-        if (state.channel) {
-            elements.channelName.textContent = state.channel;
+        if (state.connectionState === 'connected' && state.channel) {
+            // Create clickable link to Twitch channel
+            elements.channelName.innerHTML = `<a href="https://www.twitch.tv/${state.channel}" 
+                                                target="_blank" 
+                                                title="Open ${state.channel} on Twitch" 
+                                                class="channel-link">#${state.channel}</a>`;
+        } else if (state.connectionState === 'connecting' || state.connectionState === 'authenticating') {
+            elements.channelName.textContent = 'Connecting...';
+        } else if (state.channel && state.connectionState === 'disconnected') {
+            elements.channelName.textContent = `#${state.channel} (disconnected)`;
         } else {
             elements.channelName.textContent = state.isAuthenticated ? 'Ready to connect' : 'Not connected';
         }
@@ -324,9 +358,6 @@
                 : 'Connect to start chatting';
         }
         
-        if (elements.btnEmote) {
-            elements.btnEmote.disabled = !isConnected;
-        }
         
         updateSendButton();
     }
@@ -340,20 +371,6 @@
         elements.btnSend.disabled = !isConnected || !hasText;
     }
 
-    function updateInputCounter() {
-        if (!elements.inputCounter || !elements.messageInput) return;
-        
-        const length = elements.messageInput.value.length;
-        elements.inputCounter.textContent = `${length}/500`;
-        
-        if (length > 450) {
-            elements.inputCounter.style.color = 'var(--status-error)';
-        } else if (length > 400) {
-            elements.inputCounter.style.color = 'var(--status-connecting)';
-        } else {
-            elements.inputCounter.style.color = '';
-        }
-    }
 
     function updateChatDisplay() {
         const container = document.querySelector('.chat-container');
@@ -382,6 +399,8 @@
         if (elements.fontSize) {
             elements.fontSize.value = state.settings.fontSize;
             elements.fontSizeValue.textContent = state.settings.fontSize + 'px';
+            // Apply font size immediately
+            document.documentElement.style.setProperty('--chat-font-size', state.settings.fontSize + 'px');
         }
         if (elements.showTimestamps) {
             elements.showTimestamps.checked = state.settings.showTimestamps;
@@ -647,7 +666,6 @@
                 elements.messageInput.value = state.messageHistory[state.historyIndex];
             }
             
-            updateInputCounter();
             updateSendButton();
         }
     }

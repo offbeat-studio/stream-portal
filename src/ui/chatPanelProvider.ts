@@ -110,11 +110,9 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
                             disabled
                             style="resize: none;"
                         ></textarea>
-                        <div class="input-counter" id="inputCounter">0/500</div>
                         <button class="btn-send" id="btnSend" disabled>Send</button>
                     </div>
                     <div class="quick-actions">
-                        <button class="btn-emote" id="btnEmote" title="Emotes" disabled>😊</button>
                         <button class="btn-clear" id="btnClear" title="Clear chat">🗑️</button>
                     </div>
                 </footer>
@@ -122,7 +120,10 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
                 <!-- 設定面板 (可摺疊) -->
                 <aside class="settings-panel hidden" id="settingsPanel">
                     <div class="settings-content">
-                        <h3>Chat Settings</h3>
+                        <div class="settings-header">
+                            <h3>Chat Settings</h3>
+                            <button class="btn-close-settings" id="btnCloseSettings" title="Close settings">✕</button>
+                        </div>
                         <div class="setting-group">
                             <h4>Display</h4>
                             <label>
@@ -211,7 +212,11 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
             }
 
             // Attempt to connect
-            await this._chatManager.connectToChannel(channel);
+            const success = await this._chatManager.connectToChannel(channel);
+            if (success) {
+                // Connection successful, UI will be updated via state change handlers
+                console.log('Successfully connected to channel:', channel);
+            }
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
             vscode.window.showErrorMessage(`Failed to connect: ${errorMessage}`);
