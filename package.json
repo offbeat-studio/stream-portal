@@ -87,7 +87,7 @@
         },
         "twitchChatroom.redirectUri": {
           "type": "string",
-          "default": "http://localhost:3000/auth/callback",
+          "default": "http://localhost:7777/auth/callback",
           "description": "OAuth redirect URI"
         },
         "twitchChatroom.autoConnect": {

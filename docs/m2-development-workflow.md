@@ -11,25 +11,25 @@ gantt
     Token 管理器實作      :t2-02, after t2-01, 4h
     安全存儲機制         :t2-03, after t2-02, 2h
     Token 刷新邏輯       :t2-04, after t2-03, 2h
-    
+
     section IRC 連線管理
     WebSocket 連線管理    :t2-05, after t2-04, 3h
     IRC 協議握手         :t2-06, after t2-05, 2h
     Capabilities 協商     :t2-07, after t2-06, 2h
     心跳機制            :t2-08, after t2-07, 1h
-    
+
     section 訊息處理系統
     IRC 訊息解析器       :t2-09, after t2-08, 3h
     PRIVMSG 處理        :t2-10, after t2-09, 2h
     頻道管理            :t2-11, after t2-10, 2h
     標籤解析            :t2-12, after t2-11, 2h
-    
+
     section 聊天室功能
     頻道加入離開         :t2-13, after t2-12, 2h
     訊息發送功能         :t2-14, after t2-13, 2h
     訊息顯示機制         :t2-15, after t2-14, 2h
     使用者狀態追蹤       :t2-16, after t2-15, 2h
-    
+
     section 錯誤處理
     連線錯誤處理         :t2-17, after t2-16, 2h
     自動重連機制         :t2-18, after t2-17, 2h
@@ -46,14 +46,14 @@ flowchart TD
         B --> C[T2-03: 安全存儲]
         C --> D[T2-04: Token 刷新]
     end
-    
+
     subgraph "第2天 (連線建立)"
         D --> E[T2-05: WebSocket 管理]
         E --> F[T2-06: IRC 握手]
         F --> G[T2-07: Capabilities]
         G --> H[T2-08: 心跳機制]
     end
-    
+
     subgraph "第3天 (訊息處理)"
         H --> I[T2-09: 訊息解析]
         I --> J[T2-10: PRIVMSG 處理]
@@ -61,14 +61,14 @@ flowchart TD
         J --> L[T2-12: 標籤解析]
         K --> L
     end
-    
+
     subgraph "第4天 (聊天功能)"
         L --> M[T2-13: 頻道操作]
         M --> N[T2-14: 訊息發送]
         N --> O[T2-15: 訊息顯示]
         O --> P[T2-16: 使用者狀態]
     end
-    
+
     subgraph "第5天 (錯誤處理)"
         P --> Q[T2-17: 錯誤處理]
         Q --> R[T2-18: 自動重連]
@@ -119,14 +119,14 @@ export const TEST_CONFIG = {
   clientId: process.env.TWITCH_CLIENT_ID,
   clientSecret: process.env.TWITCH_CLIENT_SECRET,
   testChannel: process.env.TWITCH_TEST_CHANNEL,
-  redirectUri: 'http://localhost:3000/auth/callback'
+  redirectUri: 'http://localhost:7777/auth/callback'
 };
 ```
 
 ## 風險評估與緩解策略
 
 ### 高風險項目
-1. **OAuth 複雜度** 
+1. **OAuth 複雜度**
    - 風險: 認證流程實作困難
    - 緩解: 先實作簡化版本，逐步完善
 

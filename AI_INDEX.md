@@ -1,7 +1,7 @@
 # VSCode Twitch Chatroom Extension - AI Index
 
-**Project Status**: M2 Complete, Ready for M3  
-**Last Updated**: 2025-06-30  
+**Project Status**: M2 Complete, Ready for M3
+**Last Updated**: 2025-06-30
 **Git Commit**: `6be7b72` - Complete Twitch IRC integration
 
 ## 📋 Project Overview
@@ -24,7 +24,7 @@ Extension Architecture:
 │   ├── AuthManager - Main auth coordinator
 │   ├── TokenManager - Secure token storage (VSCode SecretStorage)
 │   └── OAuthFlow - OAuth flow implementation
-├── IRC Connection Layer  
+├── IRC Connection Layer
 │   ├── IRCConnectionManager - WebSocket management
 │   └── IRCProtocolHandler - IRC protocol parsing
 ├── Integration Layer
@@ -85,7 +85,7 @@ Extension Architecture:
 
 ### AuthManager (`src/twitch/auth/authManager.ts`)
 
-**Purpose**: Orchestrates the entire authentication flow  
+**Purpose**: Orchestrates the entire authentication flow
 **Key Methods**:
 - `authenticate()` - Main auth entry point, handles token validation/refresh
 - `isAuthenticated()` - Check current auth status
@@ -96,7 +96,7 @@ Extension Architecture:
 
 ### IRCConnectionManager (`src/twitch/irc/connectionManager.ts`)
 
-**Purpose**: Manages WebSocket connection to Twitch IRC  
+**Purpose**: Manages WebSocket connection to Twitch IRC
 **Key Features**:
 - Auto-reconnection with exponential backoff (max 5 attempts)
 - Heartbeat mechanism (5-minute PING/PONG)
@@ -111,7 +111,7 @@ Extension Architecture:
 
 ### TwitchChatManager (`src/twitch/twitchChatManager.ts`)
 
-**Purpose**: High-level chat operations and VSCode integration  
+**Purpose**: High-level chat operations and VSCode integration
 **Key Features**:
 - Status bar management with connection state
 - Chat message event handling
@@ -138,16 +138,16 @@ Extension Architecture:
   "twitchChatroom.clientSecret": string,  // Twitch App Client Secret (required)
   "twitchChatroom.username": string,      // Twitch username (required)
   "twitchChatroom.channel": string,       // Default channel to join
-  "twitchChatroom.redirectUri": string,   // OAuth redirect (default: localhost:3000)
+  "twitchChatroom.redirectUri": string,   // OAuth redirect (default: localhost:7777)
   "twitchChatroom.autoConnect": boolean   // Auto-connect on startup
 }
 ```
 
 ## 🔐 Security Implementation
 
-**Token Storage**: VSCode SecretStorage API (encrypted)  
-**OAuth Flow**: Authorization Code Flow with CSRF protection  
-**Token Refresh**: Automatic with 5-minute buffer  
+**Token Storage**: VSCode SecretStorage API (encrypted)
+**OAuth Flow**: Authorization Code Flow with CSRF protection
+**Token Refresh**: Automatic with 5-minute buffer
 **Scope**: Minimal (`chat:read`, `chat:edit`)
 
 ## 📊 Current Status & Milestones
@@ -217,10 +217,10 @@ Status Bar ← UI Updates ← Event Handlers ← IRC Messages ← WebSocket ← 
 
 ## 🏷️ Key Search Terms
 
-**Authentication**: OAuth, token, SecretStorage, refresh, Twitch API  
-**Connection**: IRC, WebSocket, reconnect, heartbeat, ping-pong  
-**Protocol**: PRIVMSG, JOIN, PART, capabilities, tags, badges  
-**Integration**: VSCode, commands, status bar, configuration  
+**Authentication**: OAuth, token, SecretStorage, refresh, Twitch API
+**Connection**: IRC, WebSocket, reconnect, heartbeat, ping-pong
+**Protocol**: PRIVMSG, JOIN, PART, capabilities, tags, badges
+**Integration**: VSCode, commands, status bar, configuration
 **Error Handling**: try-catch, connection state, exponential backoff
 
 ## 🚀 Quick Start for Development

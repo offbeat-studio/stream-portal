@@ -19,7 +19,7 @@ Install from the VSCode Marketplace or clone this repository for development.
 ### 2. Setup Twitch Application
 1. Go to [Twitch Developer Console](https://dev.twitch.tv/console)
 2. Create a new application
-3. Set OAuth redirect URI to: `http://localhost:3000/auth/callback`
+3. Set OAuth redirect URI to: `http://localhost:7777/auth/callback`
 4. Note down your **Client ID** and **Client Secret**
 
 ### 3. Configure VSCode Settings
@@ -28,7 +28,7 @@ Open VSCode Settings (`Ctrl+,`) and configure:
 ```json
 {
   "twitchChatroom.clientId": "your_client_id_here",
-  "twitchChatroom.clientSecret": "your_client_secret_here", 
+  "twitchChatroom.clientSecret": "your_client_secret_here",
   "twitchChatroom.username": "your_twitch_username",
   "twitchChatroom.channel": "target_channel_name"
 }
@@ -57,7 +57,7 @@ Open VSCode Settings (`Ctrl+,`) and configure:
 | `twitchChatroom.clientSecret` | string | "" | Twitch Application Client Secret (required) |
 | `twitchChatroom.username` | string | "" | Your Twitch username (required) |
 | `twitchChatroom.channel` | string | "" | Default channel to connect to |
-| `twitchChatroom.redirectUri` | string | "http://localhost:3000/auth/callback" | OAuth redirect URI |
+| `twitchChatroom.redirectUri` | string | "http://localhost:7777/auth/callback" | OAuth redirect URI |
 | `twitchChatroom.autoConnect` | boolean | false | Auto-connect on extension startup |
 
 ## 🔧 Development

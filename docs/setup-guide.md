@@ -9,7 +9,7 @@
 3. 點擊 "Create App" 或 "Register Your Application"
 4. 填寫應用程式資訊：
    - **Name**: `VSCode Twitch Chatroom` (或任何你喜歡的名稱)
-   - **OAuth Redirect URLs**: `http://localhost:3000/auth/callback`
+   - **OAuth Redirect URLs**: `http://localhost:7777/auth/callback`
    - **Category**: `Application Integration`
 5. 儲存應用程式並記下 **Client ID** 和 **Client Secret**
 
@@ -26,7 +26,7 @@
      "twitchChatroom.clientSecret": "your_client_secret_here",
      "twitchChatroom.username": "your_twitch_username",
      "twitchChatroom.channel": "target_channel_name",
-     "twitchChatroom.redirectUri": "http://localhost:3000/auth/callback"
+     "twitchChatroom.redirectUri": "http://localhost:7777/auth/callback"
    }
    ```
 
@@ -52,13 +52,13 @@
 ### 必要設定
 
 - **clientId**: Twitch 應用程式的 Client ID
-- **clientSecret**: Twitch 應用程式的 Client Secret  
+- **clientSecret**: Twitch 應用程式的 Client Secret
 - **username**: 你的 Twitch 使用者名稱
 
 ### 選用設定
 
 - **channel**: 預設要連接的頻道名稱
-- **redirectUri**: OAuth 重定向 URI (預設: `http://localhost:3000/auth/callback`)
+- **redirectUri**: OAuth 重定向 URI (預設: `http://localhost:7777/auth/callback`)
 - **autoConnect**: 是否在擴充套件啟動時自動連線 (預設: false)
 
 ## 🔧 疑難排解
@@ -66,7 +66,7 @@
 ### 常見問題
 
 **Q: 認證失敗怎麼辦？**
-A: 
+A:
 1. 確認 Client ID 和 Client Secret 正確
 2. 檢查 Redirect URI 是否與 Twitch 應用程式設定一致
 3. 嘗試重新認證：`Twitch Chatroom: Logout from Twitch`
