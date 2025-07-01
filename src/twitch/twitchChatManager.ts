@@ -3,6 +3,14 @@ import { AuthManager } from './auth/authManager';
 import { IRCConnectionManager } from './irc/connectionManager';
 import { IRCProtocolHandler } from './irc/ircProtocol';
 import { ConnectionState, IRCMessage, ChatMessage, UserType } from './types/twitch';
+import { 
+    AuthenticationError, 
+    ConnectionError, 
+    ChannelError, 
+    ConfigurationError,
+    MessageError,
+    withErrorHandling 
+} from '../core/errors';
 
 export class TwitchChatManager {
     private authManager: AuthManager;
@@ -25,14 +33,14 @@ export class TwitchChatManager {
     }
 
     async authenticate(): Promise<boolean> {
-        try {
+        return await withErrorHandling(async () => {
             const configValidation = this.authManager.validateConfig();
             if (!configValidation.isValid) {
-                vscode.window.showErrorMessage(
-                    `Twitch configuration missing: ${configValidation.missingFields.join(', ')}. ` +
-                    'Please configure in Settings.'
+                throw new ConfigurationError(
+                    configValidation.missingFields,
+                    undefined,
+                    `Missing required Twitch configuration: ${configValidation.missingFields.join(', ')}`
                 );
-                return false;
             }
 
             const result = await this.authManager.authenticate();
@@ -42,21 +50,26 @@ export class TwitchChatManager {
                 this.updateStatusBar();
                 return true;
             } else {
-                vscode.window.showErrorMessage(`Authentication failed: ${result.error}`);
-                return false;
+                throw new AuthenticationError(
+                    'Failed to authenticate with Twitch. Please check your credentials.',
+                    `Authentication failed: ${result.error}`
+                );
             }
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            vscode.window.showErrorMessage(`Authentication error: ${errorMessage}`);
-            return false;
-        }
+        }, 'Twitch authentication', false) || false;
     }
 
     async connectToChannel(channel: string): Promise<boolean> {
-        try {
+        return await withErrorHandling(async () => {
+            // Validate channel name
+            if (!channel || !channel.trim()) {
+                throw new ChannelError(channel, 'Channel name cannot be empty.');
+            }
+
+            const cleanChannel = channel.trim().toLowerCase();
+
             // Always check if we're already connected to this channel
-            if (this.isConnected() && this.currentChannel === channel) {
-                vscode.window.showInformationMessage(`Already connected to ${channel}`);
+            if (this.isConnected() && this.currentChannel === cleanChannel) {
+                vscode.window.showInformationMessage(`Already connected to ${cleanChannel}`);
                 return true;
             }
 
@@ -156,15 +169,11 @@ export class TwitchChatManager {
                 }
             });
             
-            vscode.window.showInformationMessage(`Connected to Twitch channel: ${channel}`);
+            vscode.window.showInformationMessage(`Connected to Twitch channel: ${cleanChannel}`);
             this.updateStatusBar();
             
             return true;
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            vscode.window.showErrorMessage(`Connection failed: ${errorMessage}`);
-            return false;
-        }
+        }, 'channel connection', false) || false;
     }
 
     async disconnect(): Promise<void> {
@@ -175,15 +184,18 @@ export class TwitchChatManager {
     }
 
     async sendMessage(message: string): Promise<boolean> {
-        try {
+        return await withErrorHandling(async () => {
+            // Validate message
+            if (!message || !message.trim()) {
+                throw new MessageError('Message cannot be empty.');
+            }
+
             if (!this.isConnected()) {
-                vscode.window.showErrorMessage('Not connected to Twitch chat');
-                return false;
+                throw new ConnectionError('Not connected to Twitch chat', true);
             }
 
             if (!this.currentChannel) {
-                vscode.window.showErrorMessage('No channel joined');
-                return false;
+                throw new ChannelError('', 'No channel joined. Please connect to a channel first.');
             }
 
             // Send message to IRC
@@ -213,11 +225,7 @@ export class TwitchChatManager {
             }
             
             return true;
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            vscode.window.showErrorMessage(`Failed to send message: ${errorMessage}`);
-            return false;
-        }
+        }, 'send message', false) || false;
     }
 
     async logout(): Promise<void> {

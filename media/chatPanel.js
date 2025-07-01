@@ -27,6 +27,18 @@
         recentChannels: []
     };
 
+    // Memory management constants
+    const MAX_MESSAGES = 500;
+    const MESSAGE_CLEANUP_THRESHOLD = 600;
+    
+    // Performance optimization constants
+    const DEBOUNCE_DELAY = 100;
+    const RENDER_BATCH_SIZE = 10;
+    
+    // Performance tracking
+    let renderQueue = [];
+    let renderTimeout = null;
+
     // Initialize when DOM is loaded
     document.addEventListener('DOMContentLoaded', function() {
         initializeElements();
@@ -158,10 +170,10 @@
     function handleNewMessage(message) {
         state.messages.push(message);
         
-        // Limit message history
-        if (state.messages.length > 500) {
-            state.messages = state.messages.slice(-400);
-            // Re-render all messages
+        // Memory management: Clean up old messages
+        if (state.messages.length > MESSAGE_CLEANUP_THRESHOLD) {
+            state.messages = state.messages.slice(-MAX_MESSAGES);
+            // Re-render all messages to update DOM
             renderAllMessages();
         } else {
             // Just append the new message
@@ -355,19 +367,28 @@
         }
     }
 
+    // Debounced scroll handler for performance
     function handleScroll() {
         if (!elements.messagesList) return;
         
-        const { scrollTop, scrollHeight, clientHeight } = elements.messagesList;
-        const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-        
-        state.isAutoScrollEnabled = distanceFromBottom <= 50;
-        
-        if (state.isAutoScrollEnabled) {
-            hideScrollIndicator();
-        } else {
-            showScrollIndicator();
+        // Clear existing timeout
+        if (renderTimeout) {
+            clearTimeout(renderTimeout);
         }
+        
+        // Debounce scroll handling
+        renderTimeout = setTimeout(() => {
+            const { scrollTop, scrollHeight, clientHeight } = elements.messagesList;
+            const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+            
+            state.isAutoScrollEnabled = distanceFromBottom <= 50;
+            
+            if (state.isAutoScrollEnabled) {
+                hideScrollIndicator();
+            } else {
+                showScrollIndicator();
+            }
+        }, DEBOUNCE_DELAY);
     }
 
     function handleFontSizeChange() {
@@ -548,6 +569,9 @@
     function renderAllMessages() {
         if (!elements.messagesList) return;
         
+        // Performance optimization: use document fragment for batch DOM updates
+        const fragment = document.createDocumentFragment();
+        
         // Clear existing messages (except welcome)
         const welcomeMessage = elements.messagesList.querySelector('.welcome-message');
         elements.messagesList.innerHTML = '';
@@ -556,10 +580,25 @@
             elements.messagesList.appendChild(welcomeMessage);
             welcomeMessage.style.display = 'block';
         } else {
-            state.messages.forEach(message => {
-                const messageElement = createMessageElement(message);
-                elements.messagesList.appendChild(messageElement);
-            });
+            // Batch render messages in chunks to prevent UI blocking
+            const renderBatch = (startIndex = 0) => {
+                const endIndex = Math.min(startIndex + RENDER_BATCH_SIZE, state.messages.length);
+                
+                for (let i = startIndex; i < endIndex; i++) {
+                    const messageElement = createMessageElement(state.messages[i]);
+                    fragment.appendChild(messageElement);
+                }
+                
+                if (endIndex < state.messages.length) {
+                    // Use requestAnimationFrame for smooth rendering
+                    requestAnimationFrame(() => renderBatch(endIndex));
+                } else {
+                    // All messages rendered, append fragment to DOM
+                    elements.messagesList.appendChild(fragment);
+                }
+            };
+            
+            renderBatch();
         }
     }
 
@@ -864,4 +903,38 @@
             console.warn('Could not play notification sound:', error);
         }
     }
+
+    // Cleanup function for memory management
+    function cleanup() {
+        // Clear all stored messages to free memory
+        state.messages = [];
+        state.messageHistory = [];
+        state.recentChannels = [];
+        
+        // Clear any timeouts
+        if (renderTimeout) {
+            clearTimeout(renderTimeout);
+            renderTimeout = null;
+        }
+        
+        // Clear render queue
+        renderQueue = [];
+        
+        // Clear any intervals or timeouts if they exist
+        if (window.heartbeatInterval) {
+            clearInterval(window.heartbeatInterval);
+            window.heartbeatInterval = null;
+        }
+        
+        if (window.reconnectTimeout) {
+            clearTimeout(window.reconnectTimeout);
+            window.reconnectTimeout = null;
+        }
+        
+        console.log('StreamPortal: Cleaned up resources');
+    }
+
+    // Handle page unload
+    window.addEventListener('beforeunload', cleanup);
+    window.addEventListener('unload', cleanup);
 })();

@@ -17,6 +17,10 @@ export class IRCConnectionManager {
     private joinedChannels: Set<string> = new Set();
     private reconnectAttempts: number = 0;
     private maxReconnectAttempts: number = 5;
+    
+    // Performance optimization: debounce rapid reconnection attempts
+    private lastReconnectAttempt: number = 0;
+    private static readonly MIN_RECONNECT_INTERVAL = 1000; // 1 second minimum between attempts
 
     // Event handlers
     private onMessageHandler?: (message: IRCMessage) => void;
@@ -350,8 +354,17 @@ export class IRCConnectionManager {
     }
 
     private attemptReconnect(): void {
+        // Performance optimization: prevent rapid reconnection attempts
+        const now = Date.now();
+        if (now - this.lastReconnectAttempt < IRCConnectionManager.MIN_RECONNECT_INTERVAL) {
+            console.log('Reconnection attempt too soon, skipping');
+            return;
+        }
+        this.lastReconnectAttempt = now;
+
         if (this.reconnectAttempts >= this.maxReconnectAttempts) {
             console.error('Max reconnection attempts reached');
+            this.setConnectionState(ConnectionState.ERROR);
             return;
         }
 

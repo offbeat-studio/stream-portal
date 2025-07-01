@@ -37,32 +37,21 @@ export function activate(context: vscode.ExtensionContext) {
                 return;
             }
 
-            // Get channel from configuration or ask user
-            const config = vscode.workspace.getConfiguration('twitchChatroom');
-            let channel = config.get<string>('channel', '');
+            // Ask user for channel name
+            const channel = await vscode.window.showInputBox({
+                prompt: 'Enter Twitch channel name to join',
+                placeHolder: 'channelname',
+                ignoreFocusOut: true
+            }) || '';
 
             if (!channel) {
-                channel = await vscode.window.showInputBox({
-                    prompt: 'Enter Twitch channel name to join',
-                    placeHolder: 'channelname',
-                    ignoreFocusOut: true
-                }) || '';
-
-                if (!channel) {
-                    return;
-                }
-
-                // Save channel to settings for future use
-                await config.update('channel', channel, vscode.ConfigurationTarget.Global);
+                return;
             }
 
             // Attempt to connect
             const success = await twitchChatManager.connectToChannel(channel);
             if (success) {
-                // Set up chat message logging for now
-                twitchChatManager.onChatMessage((message) => {
-                    console.log(`[${message.channel}] ${message.displayName}: ${message.message}`);
-                });
+                console.log(`Successfully connected to channel: ${channel}`);
             }
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
