@@ -46,7 +46,6 @@
             statusIndicator: document.getElementById('statusIndicator'),
             statusText: document.getElementById('statusText'),
             btnSettings: document.getElementById('btnSettings'),
-            btnConnect: document.getElementById('btnConnect'),
             
             // Messages elements
             messagesList: document.getElementById('messagesList'),
@@ -78,7 +77,6 @@
 
     function setupEventListeners() {
         // Connection buttons
-        elements.btnConnect?.addEventListener('click', handleConnect);
         elements.btnWelcomeConnect?.addEventListener('click', handleConnect);
         
         // Channel switcher

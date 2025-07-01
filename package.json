@@ -65,11 +65,6 @@
     "configuration": {
       "title": "Twitch Chatroom",
       "properties": {
-        "twitchChatroom.channel": {
-          "type": "string",
-          "default": "",
-          "description": "Twitch channel name to connect to"
-        },
         "twitchChatroom.username": {
           "type": "string",
           "default": "",

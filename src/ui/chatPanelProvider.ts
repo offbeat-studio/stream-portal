@@ -61,7 +61,7 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}'; img-src ${webview.cspSource} https: data:;">
+            <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}' https://cdnjs.buymeacoffee.com 'unsafe-inline'; img-src ${webview.cspSource} https: data:; frame-src https:; connect-src https:;">
             <link href="${styleUri}" rel="stylesheet">
             <title>Twitch Chat</title>
         </head>
@@ -97,7 +97,6 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
                     <div class="header-controls">
                         <button class="btn-info" id="btnInfo" title="Information">ℹ️</button>
                         <button class="btn-settings" id="btnSettings" title="Settings">⚙️</button>
-                        <button class="btn-connect" id="btnConnect" title="Connect">🔌</button>
                     </div>
                 </header>
 
@@ -185,12 +184,45 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
                                 <a href="https://bento.me/musingfox" target="_blank" class="info-link" title="Nick Huang's Profile">
                                     📋 My Profile
                                 </a>
-                                <a href="https://buymeacoffee.com/musingfox" target="_blank" class="info-link" title="Support Development">
-                                    ☕ Buy me a coffee
+                                <a href="https://buymeacoffee.com/musingfox" target="_blank" class="info-link bmc-link" title="Support Development">
+                                    🍵 Buy me a tea
                                 </a>
                                 <a href="https://github.com/offbeat-studio/stream-portal/issues" target="_blank" class="info-link" title="Report Issues">
                                     🐛 Report Issues
                                 </a>
+                            </div>
+                        </div>
+                        <div class="info-section">
+                            <h4>How to Use</h4>
+                            <div class="tutorial-steps">
+                                <div class="tutorial-step">
+                                    <span class="step-number">1</span>
+                                    <div class="step-content">
+                                        <strong>Configure Twitch Settings</strong>
+                                        <p>Go to VSCode Settings → Extensions → Twitch Chatroom and set your Twitch username, Client ID, and Client Secret.</p>
+                                    </div>
+                                </div>
+                                <div class="tutorial-step">
+                                    <span class="step-number">2</span>
+                                    <div class="step-content">
+                                        <strong>Connect to a Channel</strong>
+                                        <p>Enter a channel name in the input box above and press Enter or click the → button to connect.</p>
+                                    </div>
+                                </div>
+                                <div class="tutorial-step">
+                                    <span class="step-number">3</span>
+                                    <div class="step-content">
+                                        <strong>Start Chatting</strong>
+                                        <p>Once connected, type your message in the input box at the bottom and press Enter to send.</p>
+                                    </div>
+                                </div>
+                                <div class="tutorial-step">
+                                    <span class="step-number">4</span>
+                                    <div class="step-content">
+                                        <strong>Switch Channels</strong>
+                                        <p>Use the channel input or recent channels dropdown to quickly switch between different streams.</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="info-section">
@@ -250,23 +282,15 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
 
     private async handleConnectRequest() {
         try {
-            // Get channel from configuration or ask user
-            const config = vscode.workspace.getConfiguration('twitchChatroom');
-            let channel = config.get<string>('channel', '');
+            // Ask user for channel name
+            const channel = await vscode.window.showInputBox({
+                prompt: 'Enter Twitch channel name to join',
+                placeHolder: 'channelname',
+                ignoreFocusOut: true
+            }) || '';
 
             if (!channel) {
-                channel = await vscode.window.showInputBox({
-                    prompt: 'Enter Twitch channel name to join',
-                    placeHolder: 'channelname',
-                    ignoreFocusOut: true
-                }) || '';
-
-                if (!channel) {
-                    return;
-                }
-
-                // Save channel to settings for future use
-                await config.update('channel', channel, vscode.ConfigurationTarget.Global);
+                return;
             }
 
             // Attempt to connect
