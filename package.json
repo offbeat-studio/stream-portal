@@ -1,13 +1,15 @@
 {
-  "name": "vscode-twitch-chatroom",
-  "displayName": "VSCode Twitch Chatroom",
-  "description": "Integrate Twitch chatroom functionality directly into VSCode for streamers",
-  "version": "0.1.0",
+  "name": "streamportal",
+  "displayName": "StreamPortal - Twitch Chat Integration",
+  "description": "Seamlessly integrate Twitch chat into VSCode for streamers. Real-time chat, OAuth authentication, channel switching, and more!",
+  "version": "0.4.0",
   "engines": {
     "vscode": "^1.85.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Social",
+    "Live Share"
   ],
   "keywords": [
     "twitch",
@@ -15,80 +17,100 @@
     "chat",
     "chatroom",
     "live",
-    "irc"
+    "irc",
+    "streamer",
+    "oauth",
+    "realtime",
+    "webview"
   ],
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "twitchChatroom.helloWorld",
-        "title": "Hello World",
-        "category": "Twitch Chatroom"
+        "command": "streamPortal.connect",
+        "title": "Connect to Channel",
+        "category": "StreamPortal",
+        "icon": "$(broadcast)"
       },
       {
-        "command": "twitchChatroom.connect",
-        "title": "Connect to Twitch Chat",
-        "category": "Twitch Chatroom"
+        "command": "streamPortal.disconnect",
+        "title": "Disconnect",
+        "category": "StreamPortal",
+        "icon": "$(debug-disconnect)"
       },
       {
-        "command": "twitchChatroom.disconnect",
-        "title": "Disconnect from Twitch Chat",
-        "category": "Twitch Chatroom"
+        "command": "streamPortal.sendMessage",
+        "title": "Send Message",
+        "category": "StreamPortal",
+        "icon": "$(comment)"
       },
       {
-        "command": "twitchChatroom.sendMessage",
-        "title": "Send Message to Chat",
-        "category": "Twitch Chatroom"
-      },
-      {
-        "command": "twitchChatroom.logout",
-        "title": "Logout from Twitch",
-        "category": "Twitch Chatroom"
-      },
-      {
-        "command": "twitchChatroom.showChatPanel",
-        "title": "Show Chat Panel",
-        "category": "Twitch Chatroom"
+        "command": "streamPortal.logout",
+        "title": "Logout",
+        "category": "StreamPortal",
+        "icon": "$(sign-out)"
       }
     ],
     "views": {
       "explorer": [
         {
           "type": "webview",
-          "id": "twitchChatroom.chatPanel",
-          "name": "Twitch Chat",
-          "when": "true"
+          "id": "streamPortal.chatPanel",
+          "name": "StreamPortal Chat",
+          "when": "true",
+          "icon": "$(broadcast)",
+          "contextualTitle": "StreamPortal"
         }
       ]
     },
+    "viewsWelcome": [
+      {
+        "view": "streamPortal.chatPanel",
+        "contents": "Welcome to StreamPortal! 🎮\n\nTo get started, you need to configure your Twitch application credentials.\n\n[Open Settings](command:workbench.action.openSettings?%5B%22streamPortal%22%5D)\n\nOnce configured, click 'Authenticate with Twitch' in the chat panel to begin.\n\n[Learn More](https://github.com/yourusername/vscode-twitch-chatroom#readme)"
+      }
+    ],
     "configuration": {
-      "title": "Twitch Chatroom",
+      "title": "StreamPortal",
       "properties": {
-        "twitchChatroom.username": {
+        "streamPortal.username": {
           "type": "string",
           "default": "",
-          "description": "Your Twitch username"
+          "description": "Your Twitch username (required)",
+          "order": 1
         },
-        "twitchChatroom.clientId": {
+        "streamPortal.clientId": {
           "type": "string",
           "default": "",
-          "description": "Twitch application Client ID (required for OAuth)"
+          "description": "Twitch application Client ID (required for OAuth)",
+          "order": 2
         },
-        "twitchChatroom.clientSecret": {
+        "streamPortal.clientSecret": {
           "type": "string",
           "default": "",
-          "description": "Twitch application Client Secret (required for OAuth)"
+          "description": "Twitch application Client Secret (required for OAuth)",
+          "order": 3
         },
-        "twitchChatroom.redirectUri": {
+        "streamPortal.redirectUri": {
           "type": "string",
           "default": "http://localhost:7777/auth/callback",
-          "description": "OAuth redirect URI"
+          "description": "OAuth redirect URI (must match Twitch app settings)",
+          "order": 4
         },
-        "twitchChatroom.autoConnect": {
+        "streamPortal.autoConnect": {
           "type": "boolean",
           "default": false,
-          "description": "Automatically connect to chat when extension starts"
+          "description": "Automatically connect to last channel on extension startup",
+          "order": 5
+        },
+        "streamPortal.recentChannels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Recently connected channels (managed automatically)",
+          "order": 6
         }
       }
     }
@@ -99,8 +121,12 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js",
-    "package": "vsce package"
+    "test": "npx jest",
+    "test:watch": "npx jest --watch",
+    "test:coverage": "npx jest --coverage",
+    "package": "vsce package",
+    "dev": "code --extensionDevelopmentHost=.",
+    "clean": "rm -rf out node_modules"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
@@ -123,18 +149,34 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/vscode-twitch-chatroom.git"
+    "url": "https://github.com/yourusername/vscode-twitch-chatroom.git"
   },
   "bugs": {
-    "url": "https://github.com/your-username/vscode-twitch-chatroom/issues"
+    "url": "https://github.com/yourusername/vscode-twitch-chatroom/issues"
   },
-  "homepage": "https://github.com/your-username/vscode-twitch-chatroom#readme",
+  "homepage": "https://github.com/yourusername/vscode-twitch-chatroom#readme",
   "license": "MIT",
   "author": {
-    "name": "Your Name",
-    "email": "your.email@example.com"
+    "name": "StreamPortal Team",
+    "email": "support@streamportal.dev"
   },
-  "publisher": "your-publisher-name",
+  "publisher": "streamportal",
+  "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#9146FF",
+    "theme": "dark"
+  },
+  "badges": [
+    {
+      "url": "https://img.shields.io/github/stars/yourusername/vscode-twitch-chatroom",
+      "href": "https://github.com/yourusername/vscode-twitch-chatroom/stargazers",
+      "description": "Star on GitHub"
+    }
+  ],
+  "qna": "https://github.com/yourusername/vscode-twitch-chatroom/discussions",
+  "sponsor": {
+    "url": "https://github.com/sponsors/yourusername"
+  },
   "dependencies": {
     "node-fetch": "^3.3.2",
     "ws": "^8.18.3"
