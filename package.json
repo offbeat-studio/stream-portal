@@ -161,7 +161,6 @@
     "email": "support@streamportal.dev"
   },
   "publisher": "streamportal",
-  "icon": "media/icon.png",
   "galleryBanner": {
     "color": "#9146FF",
     "theme": "dark"
