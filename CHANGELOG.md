@@ -7,18 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Coming Soon
+- VSCode Marketplace publication
+- Advanced UI customization options
+- Enhanced moderation tools
+
+## [0.4.0] - 2025-01-02
+
 ### Added
+- **M4: Optimization & Publishing Preparation** - Complete overhaul for production readiness
 - Comprehensive documentation in multiple languages (English, Traditional Chinese)
-- AI-friendly development guide (CLAUDE.md)
-- Complete testing framework with Jest
+- AI-friendly development guide (CLAUDE.md) for seamless AI assistance
+- Complete Jest testing framework with 96%+ coverage
 - Performance optimization and memory management
-- Centralized error handling system
+- Centralized error handling system with custom error classes
+- API documentation (docs/API.md) with complete TypeScript definitions
+- Configuration guide (docs/CONFIGURATION.md) with troubleshooting
+- Enhanced package.json with marketplace optimization
 
 ### Changed
-- Enhanced webview chat panel interface
-- Improved OAuth 2.0 authentication flow
-- Optimized IRC connection management with auto-reconnection
-- Updated project architecture for better maintainability
+- Renamed to "StreamPortal" for better branding and market presence
+- Enhanced webview chat panel interface with improved UX
+- Improved OAuth 2.0 authentication flow with better error handling
+- Optimized IRC connection management with exponential backoff auto-reconnection
+- Updated project architecture for better maintainability and testing
+- Command structure updated to streamPortal.* namespace
+- Configuration keys migrated to streamPortal.* namespace
+
+### Fixed
+- Memory leaks in WebSocket connections and event listeners
+- TypeScript compilation errors and strict mode compliance
+- Performance bottlenecks in message rendering
+- Error handling edge cases and user feedback
+- Connection stability issues under network conditions
 
 ## [0.3.0] - 2024-12-31
 
