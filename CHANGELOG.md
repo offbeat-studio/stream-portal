@@ -257,4 +257,4 @@ VSCode Extension → Commands → Status Bar
 
 ---
 
-For more details about specific changes, see the [commit history](https://github.com/yourusername/vscode-twitch-chatroom/commits/master) and [release notes](https://github.com/yourusername/vscode-twitch-chatroom/releases).
+For more details about specific changes, see the [commit history](https://github.com/offbeat-studio/stream-portal/commits/master) and [release notes](https://github.com/offbeat-studio/stream-portal/releases).

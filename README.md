@@ -149,7 +149,7 @@ Run tests with: `npm test`
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/vscode-twitch-chatroom.git
+git clone https://github.com/offbeat-studio/stream-portal.git
 cd vscode-twitch-chatroom
 
 # Install dependencies
@@ -268,8 +268,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 - **Documentation**: [CLAUDE.md](CLAUDE.md) for comprehensive technical details
-- **Issues**: [GitHub Issues](https://github.com/yourusername/vscode-twitch-chatroom/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/vscode-twitch-chatroom/discussions)
+- **Issues**: [GitHub Issues](https://github.com/offbeat-studio/stream-portal/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/offbeat-studio/stream-portal/discussions)
 
 ---
 

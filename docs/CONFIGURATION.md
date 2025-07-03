@@ -382,8 +382,8 @@ For automated testing environments, configure StreamPortal to use test credentia
 
 - **Documentation**: [README.md](../README.md) for general setup
 - **API Reference**: [API.md](API.md) for technical details
-- **Issues**: [GitHub Issues](https://github.com/yourusername/vscode-twitch-chatroom/issues) for bug reports
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/vscode-twitch-chatroom/discussions) for questions
+- **Issues**: [GitHub Issues](https://github.com/offbeat-studio/stream-portal/issues) for bug reports
+- **Discussions**: [GitHub Discussions](https://github.com/offbeat-studio/stream-portal/discussions) for questions
 
 ### Validation Tools
 

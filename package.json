@@ -65,7 +65,7 @@
     "viewsWelcome": [
       {
         "view": "streamPortal.chatPanel",
-        "contents": "Welcome to StreamPortal! 🎮\n\nTo get started, you need to configure your Twitch application credentials.\n\n[Open Settings](command:workbench.action.openSettings?%5B%22streamPortal%22%5D)\n\nOnce configured, click 'Authenticate with Twitch' in the chat panel to begin.\n\n[Learn More](https://github.com/musingfox/vscode-twitch-chatroom#readme)"
+        "contents": "Welcome to StreamPortal! 🎮\n\nTo get started, you need to configure your Twitch application credentials.\n\n[Open Settings](command:workbench.action.openSettings?%5B%22streamPortal%22%5D)\n\nOnce configured, click 'Authenticate with Twitch' in the chat panel to begin.\n\n[Learn More](https://github.com/offbeat-studio/stream-portal#readme)"
       }
     ],
     "configuration": {
@@ -147,12 +147,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/musingfox/vscode-twitch-chatroom.git"
+    "url": "https://github.com/offbeat-studio/stream-portal.git"
   },
   "bugs": {
-    "url": "https://github.com/musingfox/vscode-twitch-chatroom/issues"
+    "url": "https://github.com/offbeat-studio/stream-portal/issues"
   },
-  "homepage": "https://github.com/musingfox/vscode-twitch-chatroom#readme",
+  "homepage": "https://github.com/offbeat-studio/stream-portal#readme",
   "license": "MIT",
   "author": {
     "name": "musingfox",
@@ -166,14 +166,14 @@
   },
   "badges": [
     {
-      "url": "https://img.shields.io/github/stars/musingfox/vscode-twitch-chatroom",
-      "href": "https://github.com/musingfox/vscode-twitch-chatroom/stargazers",
+      "url": "https://img.shields.io/github/stars/offbeat-studio/stream-portal",
+      "href": "https://github.com/offbeat-studio/stream-portal/stargazers",
       "description": "Star on GitHub"
     }
   ],
-  "qna": "https://github.com/musingfox/vscode-twitch-chatroom/discussions",
+  "qna": "https://github.com/offbeat-studio/stream-portal/discussions",
   "sponsor": {
-    "url": "https://github.com/sponsors/musingfox"
+    "url": "https://github.com/sponsors/offbeat-studio"
   },
   "dependencies": {
     "node-fetch": "^3.3.2",

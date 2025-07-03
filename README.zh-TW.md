@@ -149,7 +149,7 @@ StreamPortal 包含完整的測試基礎設施：
 
 ```bash
 # 複製儲存庫
-git clone https://github.com/yourusername/vscode-twitch-chatroom.git
+git clone https://github.com/offbeat-studio/stream-portal.git
 cd vscode-twitch-chatroom
 
 # 安裝相依套件
@@ -268,8 +268,8 @@ npm run package      # 建立 .vsix 套件
 ## 📞 支援
 
 - **文件**：[CLAUDE.md](CLAUDE.md) 提供完整技術詳情
-- **問題**：[GitHub Issues](https://github.com/yourusername/vscode-twitch-chatroom/issues)
-- **討論**：[GitHub Discussions](https://github.com/yourusername/vscode-twitch-chatroom/discussions)
+- **問題**：[GitHub Issues](https://github.com/offbeat-studio/stream-portal/issues)
+- **討論**：[GitHub Discussions](https://github.com/offbeat-studio/stream-portal/discussions)
 
 ---
 
