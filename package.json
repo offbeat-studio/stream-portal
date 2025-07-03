@@ -7,9 +7,7 @@
     "vscode": "^1.85.0"
   },
   "categories": [
-    "Other",
-    "Social",
-    "Live Share"
+    "Other"
   ],
   "keywords": [
     "twitch",
@@ -67,7 +65,7 @@
     "viewsWelcome": [
       {
         "view": "streamPortal.chatPanel",
-        "contents": "Welcome to StreamPortal! 🎮\n\nTo get started, you need to configure your Twitch application credentials.\n\n[Open Settings](command:workbench.action.openSettings?%5B%22streamPortal%22%5D)\n\nOnce configured, click 'Authenticate with Twitch' in the chat panel to begin.\n\n[Learn More](https://github.com/yourusername/vscode-twitch-chatroom#readme)"
+        "contents": "Welcome to StreamPortal! 🎮\n\nTo get started, you need to configure your Twitch application credentials.\n\n[Open Settings](command:workbench.action.openSettings?%5B%22streamPortal%22%5D)\n\nOnce configured, click 'Authenticate with Twitch' in the chat panel to begin.\n\n[Learn More](https://github.com/musingfox/vscode-twitch-chatroom#readme)"
       }
     ],
     "configuration": {
@@ -149,32 +147,33 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/vscode-twitch-chatroom.git"
+    "url": "https://github.com/musingfox/vscode-twitch-chatroom.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/vscode-twitch-chatroom/issues"
+    "url": "https://github.com/musingfox/vscode-twitch-chatroom/issues"
   },
-  "homepage": "https://github.com/yourusername/vscode-twitch-chatroom#readme",
+  "homepage": "https://github.com/musingfox/vscode-twitch-chatroom#readme",
   "license": "MIT",
   "author": {
-    "name": "StreamPortal Team",
-    "email": "support@streamportal.dev"
+    "name": "musingfox",
+    "email": "nick12703990@gmail.com"
   },
-  "publisher": "streamportal",
+  "publisher": "musingfox",
+  "icon": "icon.png",
   "galleryBanner": {
     "color": "#9146FF",
     "theme": "dark"
   },
   "badges": [
     {
-      "url": "https://img.shields.io/github/stars/yourusername/vscode-twitch-chatroom",
-      "href": "https://github.com/yourusername/vscode-twitch-chatroom/stargazers",
+      "url": "https://img.shields.io/github/stars/musingfox/vscode-twitch-chatroom",
+      "href": "https://github.com/musingfox/vscode-twitch-chatroom/stargazers",
       "description": "Star on GitHub"
     }
   ],
-  "qna": "https://github.com/yourusername/vscode-twitch-chatroom/discussions",
+  "qna": "https://github.com/musingfox/vscode-twitch-chatroom/discussions",
   "sponsor": {
-    "url": "https://github.com/sponsors/yourusername"
+    "url": "https://github.com/sponsors/musingfox"
   },
   "dependencies": {
     "node-fetch": "^3.3.2",
