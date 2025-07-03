@@ -21,7 +21,13 @@
     "realtime",
     "webview"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onView:streamPortal.chatPanel",
+    "onCommand:streamPortal.connect",
+    "onCommand:streamPortal.disconnect",
+    "onCommand:streamPortal.sendMessage",
+    "onCommand:streamPortal.logout"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
