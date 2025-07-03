@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { TwitchChatManager } from '../twitch/twitchChatManager';
 
 export class SendMessageCommand {
-    static readonly COMMAND_ID = 'twitchChatroom.sendMessage';
+    static readonly COMMAND_ID = 'streamPortal.sendMessage';
 
     constructor(private chatManager: TwitchChatManager) {}
 

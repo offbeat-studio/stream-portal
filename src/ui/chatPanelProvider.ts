@@ -3,7 +3,7 @@ import { TwitchChatManager } from '../twitch/twitchChatManager';
 import { ConnectionState, ChatMessage } from '../twitch/types/twitch';
 
 export class ChatPanelProvider implements vscode.WebviewViewProvider {
-    public static readonly viewType = 'twitchChatroom.chatPanel';
+    public static readonly viewType = 'streamPortal.chatPanel';
     
     private _view?: vscode.WebviewView;
     private _extensionUri: vscode.Uri;

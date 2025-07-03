@@ -25,12 +25,12 @@ export function activate(context: vscode.ExtensionContext) {
     );
 
     // Hello World command for testing
-    const helloWorldCommand = vscode.commands.registerCommand('twitchChatroom.helloWorld', () => {
+    const helloWorldCommand = vscode.commands.registerCommand('streamPortal.helloWorld', () => {
         vscode.window.showInformationMessage('Hello World from VSCode Twitch Chatroom!');
     });
 
     // Connect command
-    const connectCommand = vscode.commands.registerCommand('twitchChatroom.connect', async () => {
+    const connectCommand = vscode.commands.registerCommand('streamPortal.connect', async () => {
         try {
             if (twitchChatManager.isConnected()) {
                 vscode.window.showInformationMessage('Already connected to Twitch chat');
@@ -60,7 +60,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     // Disconnect command
-    const disconnectCommand = vscode.commands.registerCommand('twitchChatroom.disconnect', async () => {
+    const disconnectCommand = vscode.commands.registerCommand('streamPortal.disconnect', async () => {
         try {
             await twitchChatManager.disconnect();
         } catch (error) {
@@ -70,7 +70,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     // Send message command
-    const sendMessageCommand = vscode.commands.registerCommand('twitchChatroom.sendMessage', async () => {
+    const sendMessageCommand = vscode.commands.registerCommand('streamPortal.sendMessage', async () => {
         try {
             if (!twitchChatManager.isConnected()) {
                 vscode.window.showWarningMessage('Not connected to Twitch chat');
@@ -96,7 +96,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     // Logout command
-    const logoutCommand = vscode.commands.registerCommand('twitchChatroom.logout', async () => {
+    const logoutCommand = vscode.commands.registerCommand('streamPortal.logout', async () => {
         try {
             await twitchChatManager.logout();
         } catch (error) {
@@ -106,9 +106,9 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     // Show chat panel command
-    const showChatPanelCommand = vscode.commands.registerCommand('twitchChatroom.showChatPanel', async () => {
+    const showChatPanelCommand = vscode.commands.registerCommand('streamPortal.showChatPanel', async () => {
         // Focus on the chat panel view
-        vscode.commands.executeCommand('twitchChatroom.chatPanel.focus');
+        vscode.commands.executeCommand('streamPortal.chatPanel.focus');
     });
 
     // Add commands to the context subscriptions

@@ -264,7 +264,7 @@ export class TwitchChatManager {
             vscode.StatusBarAlignment.Right, 
             100
         );
-        this.statusBarItem.command = 'twitchChatroom.connect';
+        this.statusBarItem.command = 'streamPortal.connect';
         this.updateStatusBar();
         this.statusBarItem.show();
         this.context.subscriptions.push(this.statusBarItem);

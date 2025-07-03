@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { TwitchChatManager } from '../twitch/twitchChatManager';
 
 export class LogoutCommand {
-    static readonly COMMAND_ID = 'twitchChatroom.logout';
+    static readonly COMMAND_ID = 'streamPortal.logout';
 
     constructor(private chatManager: TwitchChatManager) {}
 
