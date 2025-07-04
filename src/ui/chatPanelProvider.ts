@@ -340,7 +340,7 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
 
     private handleSettingsChanged(settings: any) {
         // Save settings to workspace configuration
-        const config = vscode.workspace.getConfiguration('twitchChatroom');
+        const config = vscode.workspace.getConfiguration('streamPortal');
         
         if (settings.fontSize) {
             config.update('fontSize', settings.fontSize, vscode.ConfigurationTarget.Global);
@@ -372,7 +372,7 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
     }
 
     private handleSaveRecentChannels(channels: string[]) {
-        const config = vscode.workspace.getConfiguration('twitchChatroom');
+        const config = vscode.workspace.getConfiguration('streamPortal');
         config.update('recentChannels', channels, vscode.ConfigurationTarget.Global);
     }
 
@@ -407,7 +407,7 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
     }
 
     private sendInitialState() {
-        const config = vscode.workspace.getConfiguration('twitchChatroom');
+        const config = vscode.workspace.getConfiguration('streamPortal');
         const currentChannel = this._chatManager.getCurrentChannel();
         const connectionState = this._chatManager.getConnectionState();
         

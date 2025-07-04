@@ -117,7 +117,7 @@ export class TwitchChatManager {
                     return false;
                 }
             }
-            const config = vscode.workspace.getConfiguration('twitchChatroom');
+            const config = vscode.workspace.getConfiguration('streamPortal');
             const username = config.get<string>('username', '');
 
             if (!username) {
@@ -202,7 +202,7 @@ export class TwitchChatManager {
             this.connectionManager.sendMessage(this.currentChannel, message);
             
             // Create a local message object for our own message since Twitch doesn't echo it back
-            const config = vscode.workspace.getConfiguration('twitchChatroom');
+            const config = vscode.workspace.getConfiguration('streamPortal');
             const username = config.get<string>('username', '');
             
             if (username) {

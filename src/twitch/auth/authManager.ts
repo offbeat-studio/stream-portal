@@ -101,7 +101,7 @@ export class AuthManager {
     }
 
     private getConfigFromSettings(): TwitchConfig {
-        const configuration = vscode.workspace.getConfiguration('twitchChatroom');
+        const configuration = vscode.workspace.getConfiguration('streamPortal');
 
         // These should be configured by the user
         const clientId = configuration.get<string>('clientId', '');
