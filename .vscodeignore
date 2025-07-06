@@ -13,6 +13,11 @@ tests/**
 jest.config.js
 coverage/**
 node_modules/**
+!node_modules/node-fetch/**
+!node_modules/ws/**
+!node_modules/data-uri-to-buffer/**
+!node_modules/fetch-blob/**
+!node_modules/formdata-polyfill/**
 .env
 .env.*
 *.vsix
