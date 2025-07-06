@@ -158,6 +158,11 @@ export class OAuthFlow {
     }
 
     async exchangeCodeForTokens(code: string): Promise<TokenData> {
+        console.log('Exchanging code for tokens...');
+        console.log('Client ID:', this.config.clientId ? `${this.config.clientId.substring(0, 8)}...` : 'NOT SET');
+        console.log('Client Secret:', this.config.clientSecret ? `${this.config.clientSecret.substring(0, 4)}...` : 'NOT SET');
+        console.log('Redirect URI:', this.config.redirectUri);
+        
         const response = await fetch(OAuthFlow.TWITCH_TOKEN_URL, {
             method: 'POST',
             headers: {
@@ -174,6 +179,16 @@ export class OAuthFlow {
 
         if (!response.ok) {
             const errorData = await response.text();
+            console.error('Token exchange error:', {
+                status: response.status,
+                statusText: response.statusText,
+                errorData: errorData
+            });
+            
+            if (response.status === 403) {
+                throw new Error(`Authentication failed: Invalid client credentials. Please check your Client ID and Client Secret in VSCode settings.`);
+            }
+            
             throw new Error(`Token exchange failed: ${response.status} ${errorData}`);
         }
 

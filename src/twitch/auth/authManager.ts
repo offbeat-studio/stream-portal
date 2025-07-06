@@ -121,22 +121,40 @@ export class AuthManager {
         this.oauthFlow = new OAuthFlow(this.config);
     }
 
-    validateConfig(): { isValid: boolean; missingFields: string[] } {
+    validateConfig(): { isValid: boolean; missingFields: string[]; errors: string[] } {
         const missingFields: string[] = [];
+        const errors: string[] = [];
 
         if (!this.config.clientId) {
             missingFields.push('clientId');
-        }
-        if (!this.config.clientSecret) {
-            missingFields.push('clientSecret');
-        }
-        if (!this.config.redirectUri) {
-            missingFields.push('redirectUri');
+        } else if (this.config.clientId.length < 10) {
+            errors.push('Client ID appears to be invalid (too short)');
         }
 
+        if (!this.config.clientSecret) {
+            missingFields.push('clientSecret');
+        } else if (this.config.clientSecret.length < 10) {
+            errors.push('Client Secret appears to be invalid (too short)');
+        }
+
+        if (!this.config.redirectUri) {
+            missingFields.push('redirectUri');
+        } else if (!this.config.redirectUri.startsWith('http')) {
+            errors.push('Redirect URI must start with http:// or https://');
+        }
+
+        console.log('Config validation:', {
+            clientId: this.config.clientId ? `${this.config.clientId.substring(0, 8)}...` : 'NOT SET',
+            clientSecret: this.config.clientSecret ? `${this.config.clientSecret.substring(0, 4)}...` : 'NOT SET',
+            redirectUri: this.config.redirectUri,
+            missingFields,
+            errors
+        });
+
         return {
-            isValid: missingFields.length === 0,
-            missingFields
+            isValid: missingFields.length === 0 && errors.length === 0,
+            missingFields,
+            errors
         };
     }
 }

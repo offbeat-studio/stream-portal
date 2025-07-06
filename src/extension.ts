@@ -3,13 +3,16 @@ import { TwitchChatManager } from './twitch/twitchChatManager';
 import { ChatPanelProvider } from './ui/chatPanelProvider';
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log('VSCode Twitch Chatroom extension is now active!');
+    console.log('StreamPortal extension is now activating...');
 
-    // Initialize Twitch Chat Manager
-    const twitchChatManager = new TwitchChatManager(context);
+    try {
+        // Initialize Twitch Chat Manager
+        console.log('Initializing TwitchChatManager...');
+        const twitchChatManager = new TwitchChatManager(context);
 
-    // Initialize Chat Panel Provider
-    const chatPanelProvider = new ChatPanelProvider(context.extensionUri, twitchChatManager);
+        // Initialize Chat Panel Provider
+        console.log('Initializing ChatPanelProvider...');
+        const chatPanelProvider = new ChatPanelProvider(context.extensionUri, twitchChatManager);
     
     // Register the webview view provider
     context.subscriptions.push(
@@ -22,15 +25,16 @@ export function activate(context: vscode.ExtensionContext) {
                 }
             }
         )
-    );
+        );
 
-    // Hello World command for testing
-    const helloWorldCommand = vscode.commands.registerCommand('streamPortal.helloWorld', () => {
+        // Hello World command for testing
+        console.log('Registering commands...');
+        const helloWorldCommand = vscode.commands.registerCommand('streamPortal.helloWorld', () => {
         vscode.window.showInformationMessage('Hello World from VSCode Twitch Chatroom!');
-    });
+        });
 
-    // Connect command
-    const connectCommand = vscode.commands.registerCommand('streamPortal.connect', async () => {
+        // Connect command
+        const connectCommand = vscode.commands.registerCommand('streamPortal.connect', async () => {
         try {
             if (twitchChatManager.isConnected()) {
                 vscode.window.showInformationMessage('Already connected to Twitch chat');
@@ -57,20 +61,20 @@ export function activate(context: vscode.ExtensionContext) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
             vscode.window.showErrorMessage(`Failed to connect: ${errorMessage}`);
         }
-    });
+        });
 
-    // Disconnect command
-    const disconnectCommand = vscode.commands.registerCommand('streamPortal.disconnect', async () => {
+        // Disconnect command
+        const disconnectCommand = vscode.commands.registerCommand('streamPortal.disconnect', async () => {
         try {
             await twitchChatManager.disconnect();
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
             vscode.window.showErrorMessage(`Failed to disconnect: ${errorMessage}`);
         }
-    });
+        });
 
-    // Send message command
-    const sendMessageCommand = vscode.commands.registerCommand('streamPortal.sendMessage', async () => {
+        // Send message command
+        const sendMessageCommand = vscode.commands.registerCommand('streamPortal.sendMessage', async () => {
         try {
             if (!twitchChatManager.isConnected()) {
                 vscode.window.showWarningMessage('Not connected to Twitch chat');
@@ -93,35 +97,42 @@ export function activate(context: vscode.ExtensionContext) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
             vscode.window.showErrorMessage(`Failed to send message: ${errorMessage}`);
         }
-    });
+        });
 
-    // Logout command
-    const logoutCommand = vscode.commands.registerCommand('streamPortal.logout', async () => {
+        // Logout command
+        const logoutCommand = vscode.commands.registerCommand('streamPortal.logout', async () => {
         try {
             await twitchChatManager.logout();
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
             vscode.window.showErrorMessage(`Logout failed: ${errorMessage}`);
         }
-    });
+        });
 
-    // Show chat panel command
-    const showChatPanelCommand = vscode.commands.registerCommand('streamPortal.showChatPanel', async () => {
+        // Show chat panel command
+        const showChatPanelCommand = vscode.commands.registerCommand('streamPortal.showChatPanel', async () => {
         // Focus on the chat panel view
-        vscode.commands.executeCommand('streamPortal.chatPanel.focus');
-    });
+            vscode.commands.executeCommand('streamPortal.chatPanel.focus');
+        });
 
-    // Add commands to the context subscriptions
-    context.subscriptions.push(
-        helloWorldCommand, 
-        connectCommand, 
-        disconnectCommand,
-        sendMessageCommand,
-        logoutCommand,
-        showChatPanelCommand,
-        twitchChatManager,
-        chatPanelProvider
-    );
+        // Add commands to the context subscriptions
+        console.log('Registering commands to context subscriptions...');
+        context.subscriptions.push(
+            helloWorldCommand, 
+            connectCommand, 
+            disconnectCommand,
+            sendMessageCommand,
+            logoutCommand,
+            showChatPanelCommand,
+            twitchChatManager,
+            chatPanelProvider
+        );
+        
+        console.log('StreamPortal extension activated successfully!');
+    } catch (error) {
+        console.error('Failed to activate StreamPortal extension:', error);
+        vscode.window.showErrorMessage(`StreamPortal failed to activate: ${error}`);
+    }
 }
 
 export function deactivate() {

@@ -2,7 +2,7 @@
   "name": "streamportal",
   "displayName": "StreamPortal - Twitch Chat Integration",
   "description": "Seamlessly integrate Twitch chat into VSCode for streamers. Real-time chat, OAuth authentication, channel switching, and more!",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -22,11 +22,7 @@
     "webview"
   ],
   "activationEvents": [
-    "onView:streamPortal.chatPanel",
-    "onCommand:streamPortal.connect",
-    "onCommand:streamPortal.disconnect",
-    "onCommand:streamPortal.sendMessage",
-    "onCommand:streamPortal.logout"
+    "*"
   ],
   "main": "./out/extension.js",
   "contributes": {

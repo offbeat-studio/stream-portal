@@ -36,10 +36,14 @@ export class TwitchChatManager {
         return await withErrorHandling(async () => {
             const configValidation = this.authManager.validateConfig();
             if (!configValidation.isValid) {
+                const issues = [
+                    ...configValidation.missingFields.map(field => `Missing: ${field}`),
+                    ...configValidation.errors
+                ];
                 throw new ConfigurationError(
                     configValidation.missingFields,
                     undefined,
-                    `Missing required Twitch configuration: ${configValidation.missingFields.join(', ')}`
+                    `Twitch configuration issues: ${issues.join(', ')}`
                 );
             }
 
