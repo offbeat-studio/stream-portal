@@ -18,6 +18,8 @@ node_modules/**
 !node_modules/data-uri-to-buffer/**
 !node_modules/fetch-blob/**
 !node_modules/formdata-polyfill/**
+!node_modules/node-domexception/**
+!node_modules/web-streams-polyfill/**
 .env
 .env.*
 *.vsix
