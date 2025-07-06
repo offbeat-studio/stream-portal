@@ -150,7 +150,7 @@ StreamPortal 包含完整的測試基礎設施：
 ```bash
 # 複製儲存庫
 git clone https://github.com/offbeat-studio/stream-portal.git
-cd vscode-twitch-chatroom
+cd stream-portal
 
 # 安裝相依套件
 npm install

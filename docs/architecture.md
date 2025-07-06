@@ -8,33 +8,33 @@ graph TB
         A[extension.ts] --> B[Command Manager]
         A --> C[Configuration Manager]
         A --> D[Lifecycle Manager]
-        
+
         B --> E[Commands/]
         E --> F[Connect Command]
         E --> G[Disconnect Command]
         E --> H[Settings Command]
-        
+
         C --> I[User Settings]
         C --> J[Default Config]
-        
+
         D --> K[Activate Handler]
         D --> L[Deactivate Handler]
     end
-    
+
     subgraph "Development Tools"
         M[TypeScript Compiler] --> N[Webpack Bundler]
         N --> O[Extension Bundle]
         P[ESLint] --> Q[Code Quality]
         R[Mocha Tests] --> S[Test Reports]
     end
-    
+
     subgraph "VSCode API"
         T[Commands API] --> B
         U[Configuration API] --> C
         V[Window API] --> W[Status Bar]
         X[Workspace API] --> Y[Settings Storage]
     end
-    
+
     A --> T
     C --> U
     D --> V
@@ -48,13 +48,13 @@ graph LR
     A[package.json] --> B[TypeScript Config]
     B --> C[Webpack Config]
     C --> D[Extension Bundle]
-    
+
     E[Extension Entry] --> F[Command Registry]
     E --> G[Config Manager]
-    
+
     F --> H[Individual Commands]
     G --> I[Settings Schema]
-    
+
     J[Test Suite] --> K[Extension Tester]
     K --> L[Integration Tests]
 ```
@@ -62,7 +62,7 @@ graph LR
 ## 檔案結構規劃
 
 ```
-vscode-twitch-chatroom/
+stream-portal/
 ├── src/
 │   ├── extension.ts                 # 主要入口點
 │   ├── commands/
@@ -107,36 +107,36 @@ classDiagram
         -registerCommands()
         -initializeConfiguration()
     }
-    
+
     class CommandManager {
         +registerCommand(id: string, handler: Function)
         +executeCommand(id: string, ...args: any[])
         +dispose()
     }
-    
+
     class ConfigurationManager {
         +getConfiguration(key: string)
         +updateConfiguration(key: string, value: any)
         +onConfigurationChanged(listener: Function)
     }
-    
+
     class BaseCommand {
         <<abstract>>
         +execute(context: ExtensionContext)
         #validate()
         #handleError(error: Error)
     }
-    
+
     class ConnectCommand {
         +execute(context: ExtensionContext)
         -validateConnection()
     }
-    
+
     class DisconnectCommand {
         +execute(context: ExtensionContext)
         -cleanupConnection()
     }
-    
+
     Extension --> CommandManager
     Extension --> ConfigurationManager
     CommandManager --> BaseCommand

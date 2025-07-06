@@ -150,7 +150,7 @@ Run tests with: `npm test`
 ```bash
 # Clone repository
 git clone https://github.com/offbeat-studio/stream-portal.git
-cd vscode-twitch-chatroom
+cd stream-portal
 
 # Install dependencies
 npm install
