@@ -233,9 +233,12 @@
 
     function handleConfigurationUpdated(newSettings) {
         console.log('Configuration updated from VSCode:', newSettings);
+        console.log('Previous settings:', state.settings);
 
         // Update internal state with new settings
         state.settings = { ...state.settings, ...newSettings };
+
+        console.log('New merged settings:', state.settings);
 
         // Update UI controls to reflect the new settings
         updateSettings();
