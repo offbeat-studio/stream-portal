@@ -240,7 +240,11 @@
         // Update UI controls to reflect the new settings
         updateSettings();
 
-        console.log('Settings synchronized from VSCode settings panel');
+        // Force apply the theme changes immediately
+        updateChatDisplay();
+        updateChatTheme();
+
+        console.log('Settings synchronized from VSCode settings panel with theme applied');
     }
 
     // UI Event handlers
