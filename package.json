@@ -111,6 +111,55 @@
           "default": [],
           "description": "Recently connected channels (managed automatically)",
           "order": 6
+        },
+        "streamPortal.fontSize": {
+          "type": "number",
+          "default": 14,
+          "minimum": 12,
+          "maximum": 20,
+          "description": "Chat message font size",
+          "order": 7
+        },
+        "streamPortal.showTimestamps": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show message timestamps",
+          "order": 8
+        },
+        "streamPortal.showBadges": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show user badges",
+          "order": 9
+        },
+        "streamPortal.autoScroll": {
+          "type": "boolean",
+          "default": true,
+          "description": "Auto-scroll to new messages",
+          "order": 10
+        },
+        "streamPortal.soundNotifications": {
+          "type": "boolean",
+          "default": false,
+          "description": "Play sound for new messages",
+          "order": 11
+        },
+        "streamPortal.chatTheme": {
+          "type": "string",
+          "enum": ["original", "monochrome"],
+          "default": "original",
+          "description": "Chat color scheme: original Twitch colors or single color",
+          "enumDescriptions": [
+            "Twitch Original Colors",
+            "Single Color"
+          ],
+          "order": 12
+        },
+        "streamPortal.plainTextEmoji": {
+          "type": "boolean",
+          "default": false,
+          "description": "Convert emojis to plain text format",
+          "order": 13
         }
       }
     }

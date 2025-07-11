@@ -4,7 +4,7 @@ import { ConnectionState, ChatMessage } from '../twitch/types/twitch';
 
 export class ChatPanelProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = 'streamPortal.chatPanel';
-    
+
     private _view?: vscode.WebviewView;
     private _extensionUri: vscode.Uri;
     private _chatManager: TwitchChatManager;
@@ -13,10 +13,19 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
     constructor(extensionUri: vscode.Uri, chatManager: TwitchChatManager) {
         this._extensionUri = extensionUri;
         this._chatManager = chatManager;
-        
+
         // Listen for chat messages and connection state changes
         this._chatManager.onChatMessage((message) => this.handleChatMessage(message));
         this._chatManager.onConnectionStateChange((state) => this.handleConnectionStateChange(state));
+
+        // Listen for VSCode configuration changes
+        this._disposables.push(
+            vscode.workspace.onDidChangeConfiguration((event) => {
+                if (event.affectsConfiguration('streamPortal')) {
+                    this.handleConfigurationChanged();
+                }
+            })
+        );
     }
 
     public resolveWebviewView(
@@ -75,10 +84,10 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
                     </div>
                     <div class="channel-switcher">
                         <div class="channel-input-container">
-                            <input 
-                                type="text" 
-                                id="channelInput" 
-                                class="channel-input" 
+                            <input
+                                type="text"
+                                id="channelInput"
+                                class="channel-input"
                                 placeholder="Enter channel name..."
                                 title="Enter a Twitch channel name and press Enter to connect"
                             />
@@ -118,10 +127,10 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
                 <!-- 輸入區域 -->
                 <footer class="input-area">
                     <div class="input-container">
-                        <textarea 
-                            class="message-input" 
+                        <textarea
+                            class="message-input"
                             id="messageInput"
-                            placeholder="Type a message..." 
+                            placeholder="Type a message..."
                             maxlength="500"
                             rows="1"
                             disabled
@@ -145,6 +154,13 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
                                 Font Size: <span id="fontSizeValue">14px</span>
                             </label>
                             <label>
+                                Chat Theme:
+                                <select id="chatTheme">
+                                    <option value="original">Twitch Original Colors</option>
+                                    <option value="monochrome">Single Color</option>
+                                </select>
+                            </label>
+                            <label>
                                 <input type="checkbox" id="showTimestamps" checked>
                                 Show Timestamps
                             </label>
@@ -162,6 +178,10 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
                             <label>
                                 <input type="checkbox" id="soundNotifications">
                                 Sound notifications
+                            </label>
+                            <label>
+                                <input type="checkbox" id="plainTextEmoji">
+                                Convert emojis to plain text
                             </label>
                         </div>
                     </div>
@@ -238,7 +258,7 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
                     </div>
                 </aside>
             </div>
-            
+
             <script nonce="${nonce}" src="${scriptUri}"></script>
         </body>
         </html>`;
@@ -249,32 +269,32 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
             case 'ready':
                 this.sendInitialState();
                 break;
-            
+
             case 'connect':
                 this.handleConnectRequest();
                 break;
-            
+
             case 'disconnect':
                 this.handleDisconnectRequest();
                 break;
-            
+
             case 'sendMessage':
                 this.handleSendMessage(message.text);
                 break;
-            
-            
+
+
             case 'settingsChanged':
                 this.handleSettingsChanged(message.settings);
                 break;
-            
+
             case 'connectToChannel':
                 this.handleConnectToChannel(message.channel);
                 break;
-            
+
             case 'saveRecentChannels':
                 this.handleSaveRecentChannels(message.channels);
                 break;
-            
+
             default:
                 console.warn('Unknown message type:', message.type);
         }
@@ -341,7 +361,7 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
     private handleSettingsChanged(settings: any) {
         // Save settings to workspace configuration
         const config = vscode.workspace.getConfiguration('streamPortal');
-        
+
         if (settings.fontSize) {
             config.update('fontSize', settings.fontSize, vscode.ConfigurationTarget.Global);
         }
@@ -356,6 +376,12 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
         }
         if (settings.soundNotifications !== undefined) {
             config.update('soundNotifications', settings.soundNotifications, vscode.ConfigurationTarget.Global);
+        }
+        if (settings.chatTheme !== undefined) {
+            config.update('chatTheme', settings.chatTheme, vscode.ConfigurationTarget.Global);
+        }
+        if (settings.plainTextEmoji !== undefined) {
+            config.update('plainTextEmoji', settings.plainTextEmoji, vscode.ConfigurationTarget.Global);
         }
     }
 
@@ -376,7 +402,57 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
         config.update('recentChannels', channels, vscode.ConfigurationTarget.Global);
     }
 
+    private handleConfigurationChanged() {
+        // Send updated settings to the webview when VSCode configuration changes
+        this.sendConfigurationUpdate();
+    }
+
+    private sendConfigurationUpdate() {
+        const config = vscode.workspace.getConfiguration('streamPortal');
+
+        this.postMessage({
+            type: 'configurationUpdated',
+            settings: {
+                fontSize: config.get('fontSize', 14),
+                showTimestamps: config.get('showTimestamps', true),
+                showBadges: config.get('showBadges', true),
+                autoScroll: config.get('autoScroll', true),
+                soundNotifications: config.get('soundNotifications', false),
+                chatTheme: config.get('chatTheme', 'original'),
+                plainTextEmoji: config.get('plainTextEmoji', false)
+            }
+        });
+    }
+
     private handleChatMessage(message: ChatMessage) {
+        const config = vscode.workspace.getConfiguration('streamPortal');
+        const plainTextEmoji = config.get('plainTextEmoji', false);
+
+        let processedMessage = message.message;
+        let processedEmotes = message.emotes;
+
+        // Convert emojis to plain text if enabled
+        if (plainTextEmoji && message.emotes && message.emotes.length > 0) {
+            // Sort emotes by position in reverse order to avoid index shifting
+            const sortedEmotes = message.emotes.flatMap(emote =>
+                emote.positions.map(pos => ({
+                    ...emote,
+                    start: pos.start,
+                    end: pos.end
+                }))
+            ).sort((a, b) => b.start - a.start);
+
+            // Replace emotes with their names
+            for (const emote of sortedEmotes) {
+                const before = processedMessage.slice(0, emote.start);
+                const after = processedMessage.slice(emote.end + 1);
+                processedMessage = before + `:${emote.name}:` + after;
+            }
+
+            // Clear emotes array since we converted them to text
+            processedEmotes = [];
+        }
+
         this.postMessage({
             type: 'newMessage',
             message: {
@@ -384,10 +460,10 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
                 channel: message.channel,
                 username: message.username,
                 displayName: message.displayName,
-                message: message.message,
+                message: processedMessage,
                 timestamp: message.timestamp.toISOString(),
                 badges: message.badges,
-                emotes: message.emotes,
+                emotes: processedEmotes,
                 color: message.color,
                 userType: message.userType,
                 isSelf: message.isSelf
@@ -397,7 +473,7 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
 
     private handleConnectionStateChange(state: ConnectionState) {
         const currentChannel = this._chatManager.getCurrentChannel();
-        
+
         this.postMessage({
             type: 'connectionStateChanged',
             state: state,
@@ -410,7 +486,7 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
         const config = vscode.workspace.getConfiguration('streamPortal');
         const currentChannel = this._chatManager.getCurrentChannel();
         const connectionState = this._chatManager.getConnectionState();
-        
+
         this.postMessage({
             type: 'initialState',
             state: {
@@ -423,7 +499,9 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
                     showTimestamps: config.get('showTimestamps', true),
                     showBadges: config.get('showBadges', true),
                     autoScroll: config.get('autoScroll', true),
-                    soundNotifications: config.get('soundNotifications', false)
+                    soundNotifications: config.get('soundNotifications', false),
+                    chatTheme: config.get('chatTheme', 'original'),
+                    plainTextEmoji: config.get('plainTextEmoji', false)
                 }
             }
         });

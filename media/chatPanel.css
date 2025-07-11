@@ -5,20 +5,20 @@
   --vscode-background: var(--vscode-editor-background);
   --vscode-panel-background: var(--vscode-panel-background);
   --vscode-border: var(--vscode-panel-border);
-  
+
   /* 自定義聊天室變數 */
   --chat-header-bg: var(--vscode-titleBar-activeBackground);
   --chat-message-bg: var(--vscode-editor-background);
   --chat-input-bg: var(--vscode-input-background);
   --chat-accent: var(--vscode-focusBorder);
-  
+
   /* 使用者類型顏色 */
   --user-broadcaster: #ff6b6b;
   --user-moderator: #4ecdc4;
   --user-vip: #ffd93d;
   --user-subscriber: #6bcf7f;
   --user-viewer: var(--vscode-foreground);
-  
+
   /* 狀態顏色 */
   --status-connected: #4caf50;
   --status-connecting: #ff9800;
@@ -40,6 +40,49 @@
   --message-hover: rgba(0, 0, 0, 0.03);
 }
 
+/* Original Twitch colors theme */
+.chat-theme-original {
+    /* Keep all original colors - no overrides needed */
+}
+
+/* Monochrome/single color theme */
+.chat-theme-monochrome {
+    --username-color: var(--vscode-foreground) !important;
+    --badge-background: var(--vscode-panel-border) !important;
+    --badge-text: var(--vscode-foreground) !important;
+}
+
+.chat-theme-monochrome .user-name {
+    color: var(--vscode-foreground) !important;
+}
+
+.chat-theme-monochrome .badge {
+    background: var(--vscode-panel-border) !important;
+    color: var(--vscode-foreground) !important;
+    box-shadow: none !important;
+}
+
+.chat-theme-monochrome .emote-image {
+    filter: grayscale(50%);
+}
+
+.chat-theme-monochrome .user-name.broadcaster,
+.chat-theme-monochrome .user-name.moderator,
+.chat-theme-monochrome .user-name.vip,
+.chat-theme-monochrome .user-name.subscriber {
+    color: var(--vscode-foreground) !important;
+}
+
+.chat-theme-monochrome .message-item[data-user-type="broadcaster"] {
+    background: rgba(128, 128, 128, 0.1);
+    border-left-color: var(--vscode-foreground);
+}
+
+.chat-theme-monochrome .message-item[data-user-type="moderator"],
+.chat-theme-monochrome .message-item[data-user-type="vip"] {
+    border-left-color: var(--vscode-foreground);
+}
+
 /* 基礎重置 */
 * {
   box-sizing: border-box;
@@ -58,9 +101,9 @@ body {
 /* 主容器 */
 .chat-container {
   display: grid;
-  grid-template-areas: 
+  grid-template-areas:
     "header"
-    "messages" 
+    "messages"
     "input";
   grid-template-rows: auto 1fr auto;
   height: 100vh;
@@ -694,6 +737,23 @@ body {
   margin: 0;
 }
 
+.setting-group select {
+  flex: 1;
+  margin: 0;
+  padding: 4px 8px;
+  border: 1px solid var(--vscode-border);
+  border-radius: 3px;
+  background-color: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.setting-group select:focus {
+  outline: none;
+  border-color: var(--chat-accent);
+}
+
 /* 動畫 */
 @keyframes pulse {
   0%, 100% { opacity: 1; }
@@ -712,12 +772,12 @@ body {
     gap: 4px;
     padding: 6px;
   }
-  
+
   .input-container {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .settings-panel {
     width: 100%;
   }
