@@ -12,6 +12,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Advanced UI customization options
 - Enhanced moderation tools
 
+## [0.4.4] - 2025-01-12
+
+### Fixed
+- **Settings Synchronization**: Fixed bidirectional synchronization between VSCode settings panel and extension internal settings panel
+- **Chat Theme Settings**: Ensured theme changes apply immediately when updated from VSCode settings
+- **Plain Text Emoji Integration**: Confirmed functionality works correctly and displays properly in extension settings panel
+
+### Technical Improvements
+- Implemented real-time configuration change monitoring with `vscode.workspace.onDidChangeConfiguration`
+- Enhanced `configurationUpdated` message handling for seamless frontend-backend communication
+- Improved theme switching mechanism with immediate visual feedback
+- Cleaned up debugging code for production release
+
+### Developer Experience
+- Removed temporary debugging console.log statements
+- Optimized code for better maintainability
+- Ensured consistent settings state across all panels
+
 ## [0.4.0] - 2025-01-02
 
 ### Added

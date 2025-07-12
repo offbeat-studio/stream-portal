@@ -168,13 +168,11 @@
     }
 
     function handleInitialState(initialState) {
-        console.log('Received initial state:', initialState);
         state = { ...state, ...initialState };
 
         // Ensure settings are properly merged
         if (initialState.settings) {
             state.settings = { ...state.settings, ...initialState.settings };
-            console.log('Merged settings:', state.settings);
         }
 
         if (initialState.recentChannels) {
@@ -182,7 +180,6 @@
         }
         updateUI();
         updateSettings();
-        console.log('Updated state after initial load:', state);
     }
 
     function handleNewMessage(message) {
@@ -232,13 +229,8 @@
     }
 
     function handleConfigurationUpdated(newSettings) {
-        console.log('Configuration updated from VSCode:', newSettings);
-        console.log('Previous settings:', state.settings);
-
         // Update internal state with new settings
         state.settings = { ...state.settings, ...newSettings };
-
-        console.log('New merged settings:', state.settings);
 
         // Update UI controls to reflect the new settings
         updateSettings();
@@ -246,8 +238,6 @@
         // Force apply the theme changes immediately
         updateChatDisplay();
         updateChatTheme();
-
-        console.log('Settings synchronized from VSCode settings panel with theme applied');
     }
 
     // UI Event handlers
@@ -603,8 +593,6 @@
         const container = document.querySelector('.chat-container');
         if (!container) return;
 
-        console.log('Updating chat theme to:', state.settings.chatTheme);
-
         // Remove existing theme classes
         container.classList.remove('chat-theme-original', 'chat-theme-monochrome');
 
@@ -612,12 +600,10 @@
         switch (state.settings.chatTheme) {
             case 'monochrome':
                 container.classList.add('chat-theme-monochrome');
-                console.log('Applied monochrome theme class');
                 break;
             case 'original':
             default:
                 container.classList.add('chat-theme-original');
-                console.log('Applied original theme class');
                 break;
         }
 
@@ -627,8 +613,6 @@
             // Trigger a reflow to apply CSS changes
             message.offsetHeight;
         });
-
-        console.log('Theme applied. Container classes:', container.className);
     }
 
     // Message rendering

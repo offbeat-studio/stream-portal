@@ -404,7 +404,6 @@ export class ChatPanelProvider implements vscode.WebviewViewProvider {
 
     private handleConfigurationChanged() {
         // Send updated settings to the webview when VSCode configuration changes
-        console.log('VSCode configuration changed, sending update to webview');
         this.sendConfigurationUpdate();
     }
 
